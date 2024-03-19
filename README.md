@@ -6,4 +6,4 @@ Here are some ideas to get you started:
 - 👯 I’m looking to collaborate on Generative AI, Deep Learning, Machine Learning
 - 📫 How to reach me: rishavsaigal@gmail.com
 
-<a href="https://app.daily.dev/rishav96"><img src="devcard.png" width="356" alt="Rishav's Dev Card"/></a>
+<a href="https://app.daily.dev/rishav96"><img src="./devcard.png" width="356" alt="Rishav's Dev Card"/></a>
