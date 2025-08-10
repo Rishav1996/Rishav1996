@@ -2,7 +2,7 @@
 
 Here are some ideas to get you started:
 
-- 🔭 My recent work [https://github.com/Rishav1996/Intellect-Hire-App](https://github.com/Rishav1996/CognitoEDA)
+- 🔭 My recent work https://github.com/Rishav1996/CognitoEDA
 - 👯 I’m looking to collaborate on Generative AI, Deep Learning, Machine Learning
 - 📫 How to reach me: rishavsaigal@gmail.com
 
