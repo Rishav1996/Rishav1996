@@ -248,8 +248,6 @@ Combines state-of-the-art forecasting models with MLOps infrastructure — exper
 
 <br/><br/>
 
-[![Rishav's Dev Card](https://api.daily.dev/devcards/v2/4pZvg6S3NK9Nx0m7Qrv0G.png?type=default&r=ngp)](https://app.daily.dev/rishav96)
-
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
