@@ -161,9 +161,9 @@ Combines state-of-the-art forecasting models with MLOps infrastructure — exper
 | &nbsp; | Title | Platform |
 |:---:|:---|:---:|
 | `2026` | [**💸 The $1.5 Million Difference: Why Benchmarks Only Tell 10% About Your AI Agent**](https://www.linkedin.com/pulse/15-million-difference-why-benchmarks-only-10-ai-agent-rishav-saigal-ao4jc/) | [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rishav-saigal-4bb50311a/) |
-| `2026` | [**🤖 CognitoEDA — Agentic Automated Exploratory Data Analysis**](https://medium.com/@rishavsaigal/cognitoeda-bcbd3567e6d2) | [![Medium](https://img.shields.io/badge/Medium-12100E?style=flat-square&logo=medium&logoColor=white)](https://medium.com/@rishavsaigal) |
 | `2026` | [**🚀 From Automation to Autonomy: The Evolution of AutoML on Autopilot**](https://medium.com/@rishavsaigal/from-automation-to-autonomy-the-evolution-of-automl-on-autopilot-7935a75f8035) | [![Medium](https://img.shields.io/badge/Medium-12100E?style=flat-square&logo=medium&logoColor=white)](https://medium.com/@rishavsaigal) |
 | `2026` | [**⚙️ AutoML on Autopilot**](https://medium.com/@rishavsaigal/automl-on-autopilot-c8939bca8f8f) | [![Medium](https://img.shields.io/badge/Medium-12100E?style=flat-square&logo=medium&logoColor=white)](https://medium.com/@rishavsaigal) |
+| `2025` | [**🤖 CognitoEDA — Agentic Automated Exploratory Data Analysis**](https://medium.com/@rishavsaigal/cognitoeda-bcbd3567e6d2) | [![Medium](https://img.shields.io/badge/Medium-12100E?style=flat-square&logo=medium&logoColor=white)](https://medium.com/@rishavsaigal) |
 
 </div>
 
