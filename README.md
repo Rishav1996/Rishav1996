@@ -54,6 +54,7 @@
 │  📝 Writing    : Medium & LinkedIn on AI research & systems  │
 │  🤝 Open to    : Collaboration on GenAI & Agentic frameworks │
 │  📫 Contact    : rishavsaigal@gmail.com                      │
+|  📝 Website    : https://rishav1996.github.io/website/       |
 │                                                              │
 │  > Philosophy: "Build AI that thinks, plans, and executes."  │
 └──────────────────────────────────────────────────────────────┘
