@@ -10,18 +10,18 @@
 
 <div align="center">
 
-<a href="https://rishav1996.github.io/website/">
+<a href="https://rishavsaigal.web.app/">
   <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=20&duration=2800&pause=900&color=58A6FF&center=true&vCenter=true&width=780&lines=Manager+(Senior+Data+Scientist+%2F+AI+Architect)+%40+Cognizant;Ph.D.+Scholar+in+CSE+%40+IIT+Patna+(2026%E2%80%932029+Expected);Enterprise+Agentic+AI+%C2%B7+Google+ADK+%C2%B7+LangGraph+%C2%B7+FastMCP;LLM+Behavioral+Drift+%C2%B7+Calcification+Effect+%C2%B7+Zenodo+DOIs;8%2B+Years+Architecting+Production+ML+%26+GenAI+Systems;Author+of+10+Technical+Papers+%2B+2+Open+Research+Releases" alt="Typing SVG" />
 </a>
 
 <br/><br/>
 
 <!-- Interactive Authority Badges -->
-<a href="https://rishav1996.github.io/website/">
+<a href="https://rishavsaigal.web.app/">
   <img src="https://img.shields.io/badge/Live%20Portfolio-0c1017?style=for-the-badge&logo=googlechrome&logoColor=58a6ff&color=131922"/>
 </a>
 &nbsp;
-<a href="https://rishav1996.github.io/website/watches/">
+<a href="https://rishavsaigal.web.app/watches/">
   <img src="https://img.shields.io/badge/Horology%20Atelier-0c1017?style=for-the-badge&logo=clockify&logoColor=c5a059&color=131922"/>
 </a>
 &nbsp;
@@ -82,8 +82,8 @@
 │                     Time Series MLOps · Causal Inference · Production XAI    │
 │  🔭 Research      : Adversarial debate dynamics, self-critiquing agents, and  │
 │                     a self-coined calcification effect in LLMs               │
-│  🌐 Web Portfolio : https://rishav1996.github.io/website/                    │
-│  ⏱️ Horology Vault: https://rishav1996.github.io/website/watches/            │
+│  🌐 Web Portfolio : https://rishavsaigal.web.app/                             │
+│  ⏱️ Horology Vault: https://rishavsaigal.web.app/watches/                     │
 │  📫 Direct Email  : rishavsaigal@gmail.com                                   │
 │                                                                              │
 │  > "Architecting autonomous systems that reason, evaluate, and reliably       │
@@ -358,7 +358,7 @@ Comprehensive reference architectures and POC toolchains demonstrating enterpris
 
 <div align="center">
 
-<a href="https://rishav1996.github.io/website/">
+<a href="https://rishavsaigal.web.app/">
   <img src="https://img.shields.io/badge/Explore%20Web%20Portfolio-0c1017?style=for-the-badge&logo=googlechrome&logoColor=58a6ff"/>
 </a>
 &nbsp;
