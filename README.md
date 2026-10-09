@@ -21,6 +21,10 @@
   <img src="https://img.shields.io/badge/Live%20Portfolio-0c1017?style=for-the-badge&logo=googlechrome&logoColor=58a6ff&color=131922"/>
 </a>
 &nbsp;
+<a href="https://rishavsaigal.web.app/resume">
+  <img src="https://img.shields.io/badge/Resume%20PDF-0c1017?style=for-the-badge&logo=adobeacrobatreader&logoColor=FF4B4B&color=131922"/>
+</a>
+&nbsp;
 <a href="https://rishavsaigal.web.app/watches/">
   <img src="https://img.shields.io/badge/Horology%20Atelier-0c1017?style=for-the-badge&logo=clockify&logoColor=c5a059&color=131922"/>
 </a>
@@ -84,6 +88,7 @@
 │                     a self-coined calcification effect in LLMs               │
 │  🌐 Web Portfolio : https://rishavsaigal.web.app/                             │
 │  ⏱️ Horology Vault: https://rishavsaigal.web.app/watches/                     │
+│  📄 Resume (PDF)  : https://rishavsaigal.web.app/resume                       │
 │  📫 Direct Email  : rishavsaigal@gmail.com                                   │
 │                                                                              │
 │  > "Architecting autonomous systems that reason, evaluate, and reliably       │
@@ -360,6 +365,10 @@ Comprehensive reference architectures and POC toolchains demonstrating enterpris
 
 <a href="https://rishavsaigal.web.app/">
   <img src="https://img.shields.io/badge/Explore%20Web%20Portfolio-0c1017?style=for-the-badge&logo=googlechrome&logoColor=58a6ff"/>
+</a>
+&nbsp;
+<a href="https://rishavsaigal.web.app/resume">
+  <img src="https://img.shields.io/badge/Download%20Resume-0c1017?style=for-the-badge&logo=adobeacrobatreader&logoColor=FF4B4B"/>
 </a>
 &nbsp;
 <a href="https://www.linkedin.com/in/rishav-saigal-4bb50311a/">
