@@ -11,7 +11,7 @@
 <div align="center">
 
 <a href="https://rishavsaigal.web.app/">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=20&duration=2800&pause=900&color=58A6FF&center=true&vCenter=true&width=780&lines=Manager+(Senior+Data+Scientist+%2F+AI+Architect)+%40+Cognizant;Ph.D.+Scholar+in+CSE+%40+IIT+Patna+(2026%E2%80%932029+Expected);Enterprise+Agentic+AI+%C2%B7+Google+ADK+%C2%B7+LangGraph+%C2%B7+FastMCP;LLM+Behavioral+Drift+%C2%B7+Calcification+Effect+%C2%B7+Zenodo+DOIs;8%2B+Years+Architecting+Production+ML+%26+GenAI+Systems;Author+of+10+Technical+Papers+%2B+2+Open+Research+Releases" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=20&duration=2800&pause=900&color=58A6FF&center=true&vCenter=true&width=780&lines=Manager+(Senior+Data+Scientist+%2F+AI+Architect)+%40+Cognizant;Ph.D.+Scholar+in+CSE+%40+IIT+Patna+(2026%E2%80%932029+Expected);Enterprise+Agentic+AI+%C2%B7+Google+ADK+%C2%B7+LangGraph+%C2%B7+FastMCP;LLM+Behavioral+Drift+%C2%B7+Calcification+Effect+%C2%B7+Zenodo+DOIs;8%2B+Years+Architecting+Production+ML+%26+GenAI+Systems;Author+of+11+Technical+Papers+%2B+3+Open+Research+Releases" alt="Typing SVG" />
 </a>
 
 <br/><br/>
@@ -43,6 +43,10 @@
 &nbsp;
 <a href="https://doi.org/10.5281/zenodo.21520843">
   <img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21520843-0F2942?style=for-the-badge&logo=doi&logoColor=58a6ff"/>
+</a>
+&nbsp;
+<a href="https://doi.org/10.5281/zenodo.23900459">
+  <img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23900459-0F2942?style=for-the-badge&logo=doi&logoColor=58a6ff"/>
 </a>
 &nbsp;
 <a href="https://pub.towardsai.net">
@@ -107,7 +111,7 @@ Senior Data Scientist and ML/GenAI Architect with **8+ years** of industry exper
   - Autonomously resolved **80% of internal policy document queries** with semantic retrieval chatbots.
   - Accelerated QA test suite authoring cycle by **70%** through automated requirement parsing.
   - Reduced distributed time series model training from **3 days to 2 hours** on Azure Databricks.
-- **Published Research & Scientific Software:** Author of **10 independent technical publications** (*Towards AI*, *Towards Deep Learning*, *Medium*, *LinkedIn*) plus **two open, DOI-indexed research software & dataset releases** (*Zenodo*) on LLM behavioral drift, a self-coined **calcification effect**, adversarial multi-agent debate, and two-axis model routing.
+- **Published Research & Scientific Software:** Author of **11 independent technical publications** (*Towards AI*, *Towards Deep Learning*, *Medium*, *LinkedIn*) plus **three open, DOI-indexed research software & dataset releases** (*Zenodo*) on LLM behavioral drift, a self-coined **calcification effect**, adversarial multi-agent debate, two-axis model routing, and commercial component decoupling.
 
 ---
 
@@ -119,6 +123,24 @@ Senior Data Scientist and ML/GenAI Architect with **8+ years** of industry exper
 
 <table>
 <tr>
+<td width="50%" valign="top">
+
+### ⚡ [a2ui-ad-component](https://github.com/Rishav1996/a2ui-ad-component)
+> **Decoupled Commercial Component Architecture for Conversational AI** &nbsp;·&nbsp; *Nov 2026*
+
+Production-grade FastMCP server and component architecture that decouples ad mediation and commercial sponsored components from LLM reasoning kernels, eliminating behavioral drift and preserving conversational agency.
+
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23900459-0F2942?style=flat-square&logo=doi)](https://doi.org/10.5281/zenodo.23900459)
+![FastMCP](https://img.shields.io/badge/-FastMCP-0D1117?style=flat-square&logo=fastapi&logoColor=009688)
+![React](https://img.shields.io/badge/-React-0D1117?style=flat-square&logo=react&logoColor=61DAFB)
+
+```
+🎯 FastMCP tool calling protocol for decoupled ad retrieval
+🛡️ Air-gapped prompt boundary preventing commercial reasoning contamination
+📦 Reusable A2UI slot component with telemetry instrumentation
+```
+
+</td>
 <td width="50%" valign="top">
 
 ### 🚀 [model-router](https://github.com/Rishav1996/model-router)
@@ -137,6 +159,8 @@ Two-axis routing engine that scores **capability floor** (complexity, domain dif
 ```
 
 </td>
+</tr>
+<tr>
 <td width="50%" valign="top">
 
 ### 🧪 [LLMDriftExperiment](https://github.com/Rishav1996/LLMDriftExperiment)
@@ -155,8 +179,6 @@ Research-grade platform for measuring and quantifying behavioral drift in large 
 ```
 
 </td>
-</tr>
-<tr>
 <td width="50%" valign="top">
 
 ### 🤖 [PyCaretAgent](https://github.com/Rishav1996/PyCaretAgent)
@@ -175,6 +197,8 @@ Autonomous agentic framework extending PyCaret. A Supervisor agent plans and rou
 ```
 
 </td>
+</tr>
+<tr>
 <td width="50%" valign="top">
 
 ### 🧠 [CognitoEDA](https://github.com/Rishav1996/CognitoEDA)
@@ -193,8 +217,6 @@ End-to-end automated exploratory data analysis system using **LangGraph state ma
 ```
 
 </td>
-</tr>
-<tr>
 <td width="50%" valign="top">
 
 ### 📈 [AI-MLOps-TimeSeries](https://github.com/Rishav1996/AI-MLOps-TimeSeries)
@@ -210,6 +232,26 @@ Self-hosted enterprise platform pairing statistical and deep sequence models (SA
 📦 Versioned model registry with automated stage transitions
 🔄 Expanding window cross-validation & drift alerts
 📊 Interactive Streamlit telemetry and metrics HUD
+```
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### ⚡ [PyCaret-MLOps](https://github.com/Rishav1996/PyCaret-MLOps)
+> **End-to-End MLOps Pipelines on AWS & Hugging Face**
+
+Production training, validation, containerization, and inference pipeline deploying PyCaret pipelines to AWS cloud endpoints and Hugging Face Spaces.
+
+![AWS](https://img.shields.io/badge/-AWS-0D1117?style=flat-square&logo=amazonwebservices&logoColor=FF9900)
+![Hugging Face](https://img.shields.io/badge/-Hugging%20Face-0D1117?style=flat-square&logo=huggingface&logoColor=FFD21E)
+![Docker](https://img.shields.io/badge/-Docker-0D1117?style=flat-square&logo=docker&logoColor=2496ED)
+
+```
+📦 Automated train-test split and feature transformation
+🚀 Continuous deployment to Hugging Face Spaces & AWS
+📊 Jupyter automated execution and pipeline artifact export
 ```
 
 </td>
@@ -245,6 +287,7 @@ Comprehensive reference architectures and POC toolchains demonstrating enterpris
 
 | Year | Research Title | Publisher / Venue | Classification |
 |:---:|:---|:---:|:---:|
+| `2026` | [**The $300B Search Dilemma: Decoupling Commercial Components from LLM Reasoning in Conversational AI**](https://www.towardsdeeplearning.com/the-300b-search-dilemma-decoupling-commercial-components-from-llm-reasoning-in-conversational-ai-e41c3d2d5152) &nbsp;[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23900459-0F2942?style=flat-square&logo=doi)](https://doi.org/10.5281/zenodo.23900459) | Towards Deep Learning | Paper + Software DOI |
 | `2026` | [**The Specialized Frontier: An Inquiry into Gated AI Architectures and the Cooperative Safety Flywheel**](https://pub.towardsai.net/the-specialized-frontier-an-inquiry-into-gated-ai-architectures-and-the-cooperative-safety-0f10f1546ad6) | Towards AI | Technical Paper |
 | `2026` | [**Claude Model Routing: Stop Scoring "Complexity." Score These Two Things Instead.**](https://www.towardsdeeplearning.com/claude-model-routing-stop-scoring-complexity-score-these-two-things-instead-a6505c9053ce) &nbsp;[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21520843-0F2942?style=flat-square&logo=doi)](https://doi.org/10.5281/zenodo.21520843) | Towards Deep Learning | Paper + Software DOI |
 | `2026` | [**LangGraph Multi-Agent Architecture: Building a Self-Critiquing AI Debate System**](https://pub.towardsai.net/langgraph-multi-agent-architecture-building-a-self-critiquing-ai-debate-system-971a7ad881d9) | Towards AI | Technical Paper |
