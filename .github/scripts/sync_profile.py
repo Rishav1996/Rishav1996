@@ -3,14 +3,13 @@
 Automated animated SVG engine & live profile sync for Rishav1996/Rishav1996.
 
 Uses Python standard library only so GitHub Actions executes with zero external pip installs.
-- Fetches live GitHub user/repo stats, 365-day contribution calendar, Credly badges,
-  Medium RSS articles (deduplicated against DOI triad labs), and YouTube Atom videos.
-- Generates 8 animated Dark/Light Executive Studio SVGs in assets/ (SMIL <animate*>):
-    1. hero-dark.svg / hero-light.svg          (Neural Agent Graph + 3Hz Horology Wheel + Sine Waves)
-    2. lab-console-dark.svg / lab-console-light.svg (lab.toml Console + 22-Signal Drift Oscilloscope)
-    3. pulse-dark.svg / pulse-light.svg        (Live 365-Day Heatmap + Scanner + Animated Language Bar)
-    4. footer-dark.svg / footer-light.svg      (Counter-Flowing Dual Waves + Rising Signal Nodes)
-- Updates marker blocks in README.md without touching or repeating any resume details.
+- Fetches live GitHub user/repo stats, exact daily contributions (tooltip + calendar),
+  Credly badges, Medium RSS articles (deduplicated against DOI triads), and YouTube Atom videos.
+- Generates 6 adaptive Dark/Light Executive Studio SVGs in assets/ (SMIL <animate*>):
+    1. hero-dark.svg / hero-light.svg     (Flowing dual waves, twinkling stars, 3Hz horology wheel)
+    2. pulse-dark.svg / pulse-light.svg   (Genuine 52-week contribution area chart + animated language bar)
+    3. footer-dark.svg / footer-light.svg (Counter-flowing dual waves + rising signal dots)
+- Updates marker blocks in README.md with zero resume highlights and zero duplication.
 """
 
 from __future__ import annotations
@@ -137,7 +136,6 @@ THEMES: dict[str, dict[str, Any]] = {
         "lang_2": "#52b788",
         "lang_3": "#79c0ff",
         "lang_4": "#6e7681",
-        "heat": ["#161b22", "#163554", "#1f5382", "#3478bd", "#58a6ff"],
     },
     "light": {
         "bg": "#f8fafc",
@@ -154,7 +152,6 @@ THEMES: dict[str, dict[str, Any]] = {
         "lang_2": "#2d6a4f",
         "lang_3": "#2563eb",
         "lang_4": "#94a3b8",
-        "heat": ["#ebedf0", "#cfe1f5", "#8ebae5", "#3b7ec2", "#0F2942"],
     },
 }
 
@@ -167,7 +164,7 @@ def esc(val: Any) -> str:
 
 
 def http_get(url: str, headers: dict[str, str] | None = None, timeout: int = 15) -> str:
-    req_headers = {"User-Agent": "Rishav1996-ProfileSync/3.0"}
+    req_headers = {"User-Agent": "Rishav1996-ProfileSync/3.1"}
     if headers:
         req_headers.update(headers)
     req = urllib.request.Request(url, headers=req_headers)
@@ -240,37 +237,69 @@ def fetch_contributions() -> dict[str, Any] | None:
     m_total = re.search(r"([\d,]+)\s+contributions\s+in\s+the\s+last\s+year", raw_html)
     total_str = m_total.group(1) if m_total else "0"
 
-    day_levels: dict[str, int] = {}
+    # Map component ID -> (date_str, level)
+    id_to_meta: dict[str, tuple[str, int]] = {}
+    day_fallback: dict[str, int] = {}
+    level_weights = {0: 0, 1: 1, 2: 3, 3: 6, 4: 10}
+
     for tag in re.findall(r"<td\b[^>]*>", raw_html):
         d_m = re.search(r'data-date="(\d{4}-\d{2}-\d{2})"', tag)
         l_m = re.search(r'data-level="(\d)"', tag)
+        id_m = re.search(r'id="(contribution-day-component-[^"]+)"', tag)
         if d_m and l_m:
-            day_levels[d_m.group(1)] = int(l_m.group(1))
+            dt_s = d_m.group(1)
+            lvl = int(l_m.group(1))
+            day_fallback[dt_s] = level_weights.get(lvl, lvl)
+            if id_m:
+                id_to_meta[id_m.group(1)] = (dt_s, lvl)
 
-    if not day_levels:
+    if not day_fallback:
         return None
 
-    days_sorted = sorted(day_levels.items(), key=lambda kv: kv[0])
-    # Organize into Sunday-first weekly columns
+    # Parse exact daily contribution counts from <tool-tip> elements
+    day_counts: dict[str, int] = {}
+    for comp_id, body in re.findall(
+        r'<tool-tip\b[^>]*for="(contribution-day-component-[^"]+)"[^>]*>([^<]+)</tool-tip>',
+        raw_html,
+    ):
+        if comp_id not in id_to_meta:
+            continue
+        dt_s, _ = id_to_meta[comp_id]
+        body_clean = body.strip()
+        if body_clean.startswith("No "):
+            day_counts[dt_s] = 0
+        else:
+            cnt_m = re.match(r"([\d,]+)\s+contribution", body_clean)
+            if cnt_m:
+                day_counts[dt_s] = int(cnt_m.group(1).replace(",", ""))
+
+    # Fall back to weighted levels only if tooltips failed to parse
+    effective_days = day_counts if len(day_counts) >= len(day_fallback) // 2 else day_fallback
+    days_sorted = sorted(effective_days.items(), key=lambda kv: kv[0])
+
     first_dt = datetime.strptime(days_sorted[0][0], "%Y-%m-%d").date()
     sun_offset = (first_dt.weekday() + 1) % 7
     grid_start = first_dt - timedelta(days=sun_offset)
 
-    cells: list[tuple[int, int, int]] = []
-    max_col = 0
-    for date_str, lvl in days_sorted:
-        dt = datetime.strptime(date_str, "%Y-%m-%d").date()
-        delta = (dt - grid_start).days
-        col = delta // 7
-        row = delta % 7
-        if col > max_col:
-            max_col = col
-        cells.append((col, row, lvl))
+    week_buckets: dict[int, int] = {}
+    for dt_s, cnt in days_sorted:
+        dt = datetime.strptime(dt_s, "%Y-%m-%d").date()
+        week_idx = (dt - grid_start).days // 7
+        week_buckets[week_idx] = week_buckets.get(week_idx, 0) + cnt
+
+    max_week = max(week_buckets)
+    weeks: list[dict[str, Any]] = []
+    for w in range(max_week + 1):
+        w_start = grid_start + timedelta(days=w * 7)
+        weeks.append({"week": w, "start_date": w_start, "count": week_buckets.get(w, 0)})
+
+    # Recompute exact total from parsed days if available
+    if day_counts and total_str == "0":
+        total_str = f"{sum(day_counts.values()):,}"
 
     return {
         "total_str": total_str,
-        "num_weeks": max_col + 1,
-        "cells": cells,
+        "weeks": weeks,
     }
 
 
@@ -427,96 +456,64 @@ def _sine_wave_path(
     return " ".join(pts)
 
 
-def _sine_stroke_path(width: int, baseline_y: float, amplitude: float, cycles: float, phase: float) -> str:
-    step = 8
-    pts: list[str] = []
-    for x in range(0, width + step, step):
-        y = baseline_y + amplitude * math.sin((2.0 * math.pi * cycles * x / 320.0) + phase)
-        cmd = "M" if x == 0 else "L"
-        pts.append(f"{cmd} {x} {y:.1f}")
-    return " ".join(pts)
-
-
 def build_hero_svg(mode: str) -> str:
+    """Style A: Sleek dual-wave hero with subtle twinkling stars & 3Hz brass balance wheel."""
     t = THEMES[mode]
-    wave1 = _sine_wave_path(1800, 196, 12, 2, 0.0, 240)
-    wave2 = _sine_wave_path(1800, 206, 9, 3, 1.4, 240)
+    wave1 = _sine_wave_path(1800, 194, 12, 2, 0.0, 236)
+    wave2 = _sine_wave_path(1800, 204, 9, 3, 1.4, 236)
 
-    # Left and right Multi-Agent Neural Constellation paths + animated signal packets
-    edges = [
-        ("M 42 74 Q 95 45 142 96", 3.6, "0s", t["accent"]),
-        ("M 42 150 Q 95 168 142 96", 4.4, "0.8s", t["sage"]),
-        ("M 42 74 Q 58 112 42 150", 5.2, "1.6s", t["accent"]),
-        ("M 142 96 Q 178 134 114 166", 4.1, "2.1s", t["sage"]),
-        ("M 758 96 Q 804 54 856 84", 3.9, "0.4s", t["accent"]),
-        ("M 758 96 Q 804 148 854 156", 4.7, "1.3s", t["sage"]),
+    # Sparse, gentle twinkling accents placed strictly in negative space outside central typography
+    stars = [
+        (56, 48, 1.6, 3.2, "0.1s", t["accent"]),
+        (108, 92, 1.4, 4.4, "0.9s", t["sage"]),
+        (68, 146, 1.8, 3.8, "1.6s", t["accent"]),
+        (158, 56, 1.3, 5.0, "0.4s", t["sage"]),
+        (178, 138, 1.5, 4.1, "1.2s", t["accent"]),
+        (736, 54, 1.4, 4.6, "0.7s", t["sage"]),
+        (764, 144, 1.7, 3.5, "1.5s", t["accent"]),
+        (838, 118, 1.5, 4.3, "0.3s", t["sage"]),
+        (812, 162, 1.3, 5.2, "1.9s", t["accent"]),
+        (140, 174, 1.4, 3.9, "2.2s", t["brass"]),
     ]
-    edge_paths = []
-    packet_circles = []
-    for idx, (d, dur, beg, col) in enumerate(edges):
-        edge_paths.append(
-            f'  <path id="edge{idx}" d="{d}" fill="none" stroke="{col}" stroke-width="1.2" stroke-opacity="0.32" stroke-dasharray="4 4">'
-            f'<animate attributeName="stroke-dashoffset" from="0" to="-16" dur="2.2s" repeatCount="indefinite"/>'
-            f"</path>"
-        )
-        packet_circles.append(
-            f'  <circle r="3" fill="{col}">'
-            f'<animateMotion path="{d}" dur="{dur}s" begin="{beg}" repeatCount="indefinite"/>'
-            f'<animate attributeName="opacity" values="0;1;1;0" dur="{dur}s" begin="{beg}" repeatCount="indefinite"/>'
-            f"</circle>"
-        )
-
-    nodes = [
-        (42, 74, 4.5, t["accent"], "0s"),
-        (42, 150, 4.0, t["sage"], "0.9s"),
-        (142, 96, 5.2, t["accent"], "0.4s"),
-        (114, 166, 3.8, t["sage"], "1.4s"),
-        (758, 96, 5.2, t["accent"], "0.6s"),
-        (856, 84, 4.2, t["sage"], "1.1s"),
-        (854, 156, 4.0, t["accent"], "0.2s"),
-    ]
-    node_circles = [
-        f'  <circle cx="{cx}" cy="{cy}" r="{r}" fill="{col}" fill-opacity="0.85">'
-        f'<animate attributeName="r" values="{r};{r+1.6};{r}" dur="3.2s" begin="{beg}" repeatCount="indefinite"/>'
-        f'<animate attributeName="fill-opacity" values="0.65;1;0.65" dur="3.2s" begin="{beg}" repeatCount="indefinite"/>'
+    star_els = [
+        f'  <circle cx="{sx}" cy="{sy}" r="{sr}" fill="{scol}">'
+        f'<animate attributeName="opacity" values="0.2;0.85;0.2" dur="{sdur}s" begin="{sbeg}" repeatCount="indefinite"/>'
         f"</circle>"
-        for cx, cy, r, col, beg in nodes
+        for sx, sy, sr, sdur, sbeg, scol in stars
     ]
 
     return "\n".join(
         [
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="900" height="240" role="img" aria-label="Rishav Saigal — AI Systems Lab and Open Research">',
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 236" width="900" height="236" role="img" aria-label="Rishav Saigal — AI Systems Lab and Open Research">',
             "  <defs>",
-            '    <clipPath id="heroInner"><rect x="14" y="14" width="872" height="212" rx="11"/></clipPath>',
+            '    <clipPath id="heroInner"><rect x="14" y="14" width="872" height="208" rx="11"/></clipPath>',
             "  </defs>",
-            f'  <rect width="900" height="240" rx="14" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.2"/>',
-            f'  <rect x="14" y="14" width="872" height="212" rx="11" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="0.9"/>',
+            f'  <rect width="900" height="236" rx="14" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.2"/>',
+            f'  <rect x="14" y="14" width="872" height="208" rx="11" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="0.9"/>',
             "",
-            "  <!-- Dual-layer flowing sine waves -->",
+            "  <!-- Dual-layer flowing aurora waves -->",
             '  <g clip-path="url(#heroInner)">',
-            '    <g>',
+            "    <g>",
             f'      <path d="{wave1}" fill="{t["accent"]}" fill-opacity="0.11"/>',
-            f'      <animateTransform attributeName="transform" type="translate" from="0 0" to="-900 0" dur="14s" repeatCount="indefinite"/>',
+            '      <animateTransform attributeName="transform" type="translate" from="0 0" to="-900 0" dur="14s" repeatCount="indefinite"/>',
             "    </g>",
-            '    <g>',
+            "    <g>",
             f'      <path d="{wave2}" fill="{t["sage"]}" fill-opacity="0.13"/>',
-            f'      <animateTransform attributeName="transform" type="translate" from="-900 0" to="0 0" dur="20s" repeatCount="indefinite"/>',
+            '      <animateTransform attributeName="transform" type="translate" from="-900 0" to="0 0" dur="20s" repeatCount="indefinite"/>',
             "    </g>",
             "  </g>",
             "",
-            "  <!-- Multi-Agent Neural Constellations -->",
-            *edge_paths,
-            *node_circles,
-            *packet_circles,
+            "  <!-- Subtle negative-space twinkling accents -->",
+            *star_els,
             "",
-            "  <!-- Horological 3Hz Balance Wheel Micro-Emblem (top-right) -->",
-            f'  <g transform="translate(842, 46)">',
-            f'    <circle cx="0" cy="0" r="14" fill="none" stroke="{t["brass"]}" stroke-width="1.2" stroke-opacity="0.55" stroke-dasharray="2 3"/>',
+            "  <!-- Subtle Top-Right Horological 3Hz Balance Wheel Emblem -->",
+            '  <g transform="translate(842, 46)">',
+            f'    <circle cx="0" cy="0" r="13.5" fill="none" stroke="{t["brass"]}" stroke-width="1.1" stroke-opacity="0.5" stroke-dasharray="2 3"/>',
             "    <g>",
-            f'      <circle cx="0" cy="0" r="9.5" fill="none" stroke="{t["brass"]}" stroke-width="1.5"/>',
-            f'      <line x1="-9.5" y1="0" x2="9.5" y2="0" stroke="{t["brass"]}" stroke-width="1.1"/>',
-            f'      <line x1="0" y1="-9.5" x2="0" y2="9.5" stroke="{t["brass"]}" stroke-width="1.1"/>',
-            f'      <circle cx="0" cy="0" r="2.3" fill="{t["brass"]}"/>',
+            f'      <circle cx="0" cy="0" r="9" fill="none" stroke="{t["brass"]}" stroke-width="1.4"/>',
+            f'      <line x1="-9" y1="0" x2="9" y2="0" stroke="{t["brass"]}" stroke-width="1"/>',
+            f'      <line x1="0" y1="-9" x2="0" y2="9" stroke="{t["brass"]}" stroke-width="1"/>',
+            f'      <circle cx="0" cy="0" r="2.2" fill="{t["brass"]}"/>',
             '      <animateTransform attributeName="transform" type="rotate" values="-28 0 0;28 0 0;-28 0 0" dur="1.6s" repeatCount="indefinite"/>',
             "    </g>",
             "  </g>",
@@ -529,109 +526,20 @@ def build_hero_svg(mode: str) -> str:
             f'  <text x="456" y="49" text-anchor="middle" font-family="{MONO_FONT}" font-size="10.2" font-weight="600" letter-spacing="0.9" fill="{t["sage"]}">AI SYSTEMS LAB  ·  OPEN RESEARCH  ·  BUILD IN PUBLIC</text>',
             "",
             "  <!-- Primary Name -->",
-            f'  <text x="450" y="110" text-anchor="middle" font-family="{SANS_FONT}" font-size="42" font-weight="800" letter-spacing="2.4" fill="{t["text"]}">RISHAV SAIGAL</text>',
+            f'  <text x="450" y="108" text-anchor="middle" font-family="{SANS_FONT}" font-size="42" font-weight="800" letter-spacing="2.4" fill="{t["text"]}">RISHAV SAIGAL</text>',
             "",
             "  <!-- Animated Accent Rule -->",
-            f'  <line x1="290" y1="126" x2="610" y2="126" stroke="{t["border"]}" stroke-width="1.2"/>',
-            f'  <line x1="360" y1="126" x2="540" y2="126" stroke="{t["accent"]}" stroke-width="2" stroke-linecap="round">',
+            f'  <line x1="290" y1="124" x2="610" y2="124" stroke="{t["border"]}" stroke-width="1.2"/>',
+            f'  <line x1="360" y1="124" x2="540" y2="124" stroke="{t["accent"]}" stroke-width="2" stroke-linecap="round">',
             '    <animate attributeName="x1" values="360;310;360" dur="5s" repeatCount="indefinite"/>',
             '    <animate attributeName="x2" values="540;590;540" dur="5s" repeatCount="indefinite"/>',
             "  </line>",
             "",
             "  <!-- Builder Identity (Zero Resume Highlights) -->",
-            f'  <text x="450" y="156" text-anchor="middle" font-family="{SANS_FONT}" font-size="13.5" font-weight="600" letter-spacing="0.4" fill="{t["accent"]}">Multi-Agent Orchestration  ·  LLM Behavioral Drift  ·  Open-Source AI Tooling  ·  Horology</text>',
+            f'  <text x="450" y="153" text-anchor="middle" font-family="{SANS_FONT}" font-size="13.5" font-weight="600" letter-spacing="0.4" fill="{t["accent"]}">Multi-Agent Orchestration  ·  LLM Behavioral Drift  ·  Open-Source AI Tooling  ·  Horology</text>',
             "",
             "  <!-- Sub-caption -->",
-            f'  <text x="450" y="182" text-anchor="middle" font-family="{MONO_FONT}" font-size="10.8" fill="{t["muted"]}">FastMCP · Google ADK · LangGraph · A2UI · Zenodo Open Benchmarks · Algorhythm Chronicles</text>',
-            "</svg>\n",
-        ]
-    )
-
-
-def build_lab_console_svg(mode: str) -> str:
-    t = THEMES[mode]
-    osc_wave1 = _sine_stroke_path(640, 108, 18, 2.0, 0.0)
-    osc_wave2 = _sine_stroke_path(640, 108, 12, 3.0, 1.3)
-
-    # 22 signal equalizer bars at the base of the oscilloscope (representing 22 drift signals)
-    bars: list[str] = []
-    for i in range(22):
-        bx = 562 + i * 14
-        base_h = 5 + ((i * 5) % 9)
-        peak_h = 17 + ((i * 7) % 11)
-        dur = 1.35 + (i % 5) * 0.35
-        col = t["accent"] if i % 2 == 0 else t["sage"]
-        bars.append(
-            f'  <rect x="{bx}" y="{182 - base_h}" width="7" height="{base_h}" rx="2" fill="{col}" fill-opacity="0.82">'
-            f'<animate attributeName="height" values="{base_h};{peak_h};{base_h}" dur="{dur:.2f}s" repeatCount="indefinite"/>'
-            f'<animate attributeName="y" values="{182 - base_h};{182 - peak_h};{182 - base_h}" dur="{dur:.2f}s" repeatCount="indefinite"/>'
-            f"</rect>"
-        )
-
-    lines = [
-        ("focus", '["Multi-Agent Systems", "A2UI", "Model Routing"]'),
-        ("research", '"LLM Drift &amp; Self-Coined Calcification Effect"'),
-        ("shipping", '["a2ui-ad-component", "model-router", "PyCaretAgent"]'),
-        ("creating", '["Algorhythm Chronicles", "Mechanical Horology"]'),
-        ("resume", '"rishavsaigal.web.app/resume"  # full CV link'),
-    ]
-    toml_els = []
-    for idx, (k, v) in enumerate(lines):
-        y = 80 + idx * 24
-        toml_els.append(
-            f'  <text x="34" y="{y}" font-family="{MONO_FONT}" font-size="11.3" font-weight="700" fill="{t["sage"]}">{k:<8}</text>'
-            f'<text x="98" y="{y}" font-family="{MONO_FONT}" font-size="11.3" fill="{t["muted"]}">=</text>'
-            f'<text x="112" y="{y}" font-family="{MONO_FONT}" font-size="11.3" fill="{t["text"]}">{v}</text>'
-        )
-
-    return "\n".join(
-        [
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 218" width="900" height="218" role="img" aria-label="AI Lab Terminal Console and 22-Signal Behavioral Drift Oscilloscope">',
-            "  <defs>",
-            '    <clipPath id="oscClip"><rect x="558" y="64" width="314" height="90" rx="6"/></clipPath>',
-            "  </defs>",
-            f'  <rect width="900" height="218" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
-            "",
-            "  <!-- Left Terminal Panel -->",
-            f'  <rect x="14" y="14" width="514" height="190" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>',
-            f'  <path d="M 14 23 A 9 9 0 0 1 23 14 L 519 14 A 9 9 0 0 1 528 23 L 528 44 L 14 44 Z" fill="{t["surface_alt"]}"/>',
-            f'  <line x1="14" y1="44" x2="528" y2="44" stroke="{t["border"]}" stroke-width="1"/>',
-            f'  <circle cx="34" cy="29" r="4.5" fill="{t["dim"]}"/>',
-            f'  <circle cx="50" cy="29" r="4.5" fill="{t["brass"]}"/>',
-            f'  <circle cx="66" cy="29" r="4.5" fill="{t["sage"]}"/>',
-            f'  <text x="275" y="33" text-anchor="middle" font-family="{MONO_FONT}" font-size="11" font-weight="600" fill="{t["muted"]}">lab.toml  —  rishav@ai-lab</text>',
-            *toml_els,
-            f'  <rect x="34" y="186" width="8" height="12" rx="1.5" fill="{t["accent"]}">',
-            '    <animate attributeName="opacity" values="1;1;0;0;1" dur="1.1s" repeatCount="indefinite"/>',
-            "  </rect>",
-            f'  <text x="48" y="196" font-family="{MONO_FONT}" font-size="10.5" fill="{t["muted"]}">status: experimenting · measuring · open-sourcing</text>',
-            "",
-            "  <!-- Right Animated 22-Signal Drift Oscilloscope -->",
-            f'  <rect x="544" y="14" width="342" height="190" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>',
-            f'  <text x="562" y="36" font-family="{MONO_FONT}" font-size="10.8" font-weight="700" letter-spacing="0.7" fill="{t["muted"]}">DRIFT OSCILLOSCOPE</text>',
-            f'  <circle cx="858" cy="32" r="4" fill="{t["sage"]}">',
-            '    <animate attributeName="opacity" values="1;0.3;1" dur="1.8s" repeatCount="indefinite"/>',
-            "  </circle>",
-            f'  <text x="846" y="36" text-anchor="end" font-family="{MONO_FONT}" font-size="10" fill="{t["sage"]}">LIVE</text>',
-            f'  <rect x="558" y="64" width="314" height="90" rx="6" fill="{t["surface_alt"]}" stroke="{t["border"]}" stroke-width="0.8"/>',
-            f'  <line x1="558" y1="109" x2="872" y2="109" stroke="{t["border"]}" stroke-dasharray="3 4" stroke-width="0.9"/>',
-            f'  <line x1="558" y1="86" x2="872" y2="86" stroke="{t["border"]}" stroke-dasharray="2 5" stroke-width="0.7"/>',
-            f'  <line x1="558" y1="132" x2="872" y2="132" stroke="{t["border"]}" stroke-dasharray="2 5" stroke-width="0.7"/>',
-            '  <g clip-path="url(#oscClip)">',
-            '    <g transform="translate(558, 0)">',
-            f'      <path d="{osc_wave1}" fill="none" stroke="{t["accent"]}" stroke-width="1.8">',
-            '        <animateTransform attributeName="transform" type="translate" from="0 0" to="-320 0" dur="5.2s" repeatCount="indefinite"/>',
-            "      </path>",
-            f'      <path d="{osc_wave2}" fill="none" stroke="{t["sage"]}" stroke-width="1.5" stroke-opacity="0.85">',
-            '        <animateTransform attributeName="transform" type="translate" from="-320 0" to="0 0" dur="7.6s" repeatCount="indefinite"/>',
-            "      </path>",
-            "    </g>",
-            f'    <line x1="558" y1="64" x2="558" y2="154" stroke="{t["brass"]}" stroke-width="1.4" stroke-opacity="0.65">',
-            '      <animateTransform attributeName="transform" type="translate" from="0 0" to="314 0" dur="4.8s" repeatCount="indefinite"/>',
-            "    </line>",
-            "  </g>",
-            *bars,
-            f'  <text x="715" y="198" text-anchor="middle" font-family="{MONO_FONT}" font-size="9.6" letter-spacing="0.7" fill="{t["muted"]}">22 SIGNALS  ·  5 DIMENSIONS  ·  CALCIFICATION MONITOR</text>',
+            f'  <text x="450" y="179" text-anchor="middle" font-family="{MONO_FONT}" font-size="10.8" fill="{t["muted"]}">FastMCP · Google ADK · LangGraph · A2UI · Zenodo Open Benchmarks · Algorhythm Chronicles</text>',
             "</svg>\n",
         ]
     )
@@ -643,8 +551,8 @@ def build_pulse_svg(
     contribs: dict[str, Any] | None,
     credly_count: int,
 ) -> str:
+    """Option 1: Genuine 52-week GitHub Contribution Area Chart + Animated Language Bar."""
     t = THEMES[mode]
-    heat_palette = t["heat"]
     lang_colors = [t["lang_1"], t["lang_2"], t["lang_3"], t["lang_4"]]
     langs = gh.get("languages") or [("Python", 100.0, 1)]
 
@@ -657,29 +565,98 @@ def build_pulse_svg(
         f"{credly_count} Credly Badges"
     )
 
-    # Heatmap geometry: 53 weeks centered inside 868px card
-    cells_svg: list[str] = []
-    if contribs and contribs["cells"]:
-        num_weeks = max(1, min(54, contribs["num_weeks"]))
-        pitch = 15
-        grid_w = num_weeks * pitch
-        start_x = (900 - grid_w) / 2.0
-        start_y = 54
-        for col, row, lvl in contribs["cells"]:
-            cx = start_x + col * pitch
-            cy = start_y + row * pitch
-            fill = heat_palette[min(4, max(0, lvl))]
-            cells_svg.append(
-                f'  <rect x="{cx:.1f}" y="{cy}" width="11" height="11" rx="2.5" fill="{fill}"/>'
+    chart_x0, chart_x1 = 48.0, 868.0
+    chart_y_top, chart_y_bot = 58.0, 146.0
+    chart_h = chart_y_bot - chart_y_top
+
+    weeks = (contribs or {}).get("weeks") or []
+    chart_svg: list[str] = []
+
+    if len(weeks) >= 2:
+        counts = [int(w["count"]) for w in weeks]
+        raw_max = max(counts) if counts else 10
+        # Nice rounded ceiling >= 4
+        y_max = max(4, int(math.ceil(raw_max / 5.0) * 5))
+        y_mid = y_max // 2
+
+        # Horizontal hairline grid & Y-axis tick labels
+        for val, y_pos in [(y_max, chart_y_top), (y_mid, chart_y_top + chart_h / 2.0), (0, chart_y_bot)]:
+            dash = ' stroke-dasharray="3 4"' if val > 0 else ""
+            chart_svg.append(
+                f'  <line x1="{chart_x0}" y1="{y_pos:.1f}" x2="{chart_x1}" y2="{y_pos:.1f}" stroke="{t["border"]}" stroke-width="0.9"{dash}/>'
             )
+            chart_svg.append(
+                f'  <text x="{chart_x0 - 8}" y="{y_pos + 3.5:.1f}" text-anchor="end" font-family="{MONO_FONT}" font-size="9.5" fill="{t["dim"]}">{val}</text>'
+            )
+
+        # Compute exact data points (x, y)
+        n = len(weeks)
+        pts: list[tuple[float, float, int, Any]] = []
+        for idx, w in enumerate(weeks):
+            x = chart_x0 + (idx / (n - 1)) * (chart_x1 - chart_x0)
+            y = chart_y_bot - (int(w["count"]) / float(y_max)) * chart_h
+            pts.append((x, y, int(w["count"]), w["start_date"]))
+
+        # Smooth horizontal-tangent cubic Bezier curve (monotone-safe: strictly bounded in [y_top, y_bot])
+        line_cmds = [f"M {pts[0][0]:.1f} {pts[0][1]:.1f}"]
+        for i in range(1, len(pts)):
+            x0, y0 = pts[i - 1][0], pts[i - 1][1]
+            x1, y1 = pts[i][0], pts[i][1]
+            xm = (x0 + x1) / 2.0
+            line_cmds.append(f"C {xm:.1f} {y0:.1f}, {xm:.1f} {y1:.1f}, {x1:.1f} {y1:.1f}")
+        line_path = " ".join(line_cmds)
+        area_path = f"{line_path} L {pts[-1][0]:.1f} {chart_y_bot:.1f} L {pts[0][0]:.1f} {chart_y_bot:.1f} Z"
+
+        # Month tick labels along X-axis (spaced to prevent label overlap)
+        last_month = None
+        last_label_x = -999.0
+        for x, _, _, dt in pts:
+            m_key = (dt.year, dt.month)
+            if m_key != last_month and (x - last_label_x) >= 48 and x <= (chart_x1 - 14):
+                chart_svg.append(
+                    f'  <line x1="{x:.1f}" y1="{chart_y_top}" x2="{x:.1f}" y2="{chart_y_bot}" stroke="{t["border"]}" stroke-width="0.6" stroke-opacity="0.5"/>'
+                )
+                chart_svg.append(
+                    f'  <text x="{x:.1f}" y="162" text-anchor="middle" font-family="{MONO_FONT}" font-size="9.5" fill="{t["muted"]}">{dt.strftime("%b")}</text>'
+                )
+                last_month = m_key
+                last_label_x = x
+
+        chart_svg.append(f'  <path d="{area_path}" fill="url(#areaGrad)"/>')
+        chart_svg.append(
+            f'  <path d="{line_path}" fill="none" stroke="{t["accent"]}" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1800" stroke-dashoffset="1800">'
+            f'<animate attributeName="stroke-dashoffset" from="1800" to="0" dur="1.8s" fill="freeze"/>'
+            f"</path>"
+        )
+
+        # Highlight top 3 non-zero peak weeks with clean markers and subtle peak count on max week
+        non_zero = [(idx, c) for idx, (_, _, c, _) in enumerate(pts) if c > 0]
+        top_peaks = sorted(non_zero, key=lambda item: (-item[1], item[0]))
+        chosen: list[int] = []
+        for idx, _ in top_peaks:
+            if all(abs(idx - c_idx) >= 4 for c_idx in chosen):
+                chosen.append(idx)
+            if len(chosen) == 3:
+                break
+        max_idx = chosen[0] if chosen else None
+        for idx in chosen:
+            px, py, pcnt, _ = pts[idx]
+            chart_svg.append(
+                f'  <circle cx="{px:.1f}" cy="{py:.1f}" r="3.4" fill="{t["sage"]}" stroke="{t["surface"]}" stroke-width="1.4"/>'
+            )
+            if idx == max_idx:
+                lbl_y = max(49.0, py - 7.0)
+                chart_svg.append(
+                    f'  <text x="{px:.1f}" y="{lbl_y:.1f}" text-anchor="middle" font-family="{MONO_FONT}" font-size="9.2" font-weight="700" fill="{t["sage"]}">{pcnt}/wk</text>'
+                )
     else:
-        cells_svg.append(
-            f'  <text x="450" y="106" text-anchor="middle" font-family="{MONO_FONT}" font-size="12" fill="{t["muted"]}">GitHub Contribution Heatmap Synced via Actions</text>'
+        chart_svg.append(
+            f'  <text x="450" y="106" text-anchor="middle" font-family="{MONO_FONT}" font-size="12" fill="{t["muted"]}">52-Week Activity Synced via GitHub Actions</text>'
         )
 
     # Animated Language Bar
     bar_x = 28
-    bar_y = 178
+    bar_y = 180
     bar_w = 844
     bar_h = 10
     curr_x = float(bar_x)
@@ -698,35 +675,28 @@ def build_pulse_svg(
         curr_x += seg_w
         lx = 28 + idx * 214
         legend_els.append(
-            f'  <circle cx="{lx + 5}" cy="204" r="4" fill="{color}"/>'
-            f'<text x="{lx + 15}" y="208" font-family="{SANS_FONT}" font-size="11" font-weight="600" fill="{t["text"]}">{esc(lname)} '
+            f'  <circle cx="{lx + 5}" cy="206" r="4" fill="{color}"/>'
+            f'<text x="{lx + 15}" y="210" font-family="{SANS_FONT}" font-size="11" font-weight="600" fill="{t["text"]}">{esc(lname)} '
             f'<tspan font-family="{MONO_FONT}" font-weight="400" fill="{t["muted"]}">{pct:.1f}% ({cnt})</tspan></text>'
         )
 
     return "\n".join(
         [
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 226" width="900" height="226" role="img" aria-label="Live GitHub Contribution Pulse and Language Distribution">',
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 228" width="900" height="228" role="img" aria-label="52-Week GitHub Activity Chart and Language Distribution">',
             "  <defs>",
-            '    <clipPath id="heatClip"><rect x="28" y="50" width="844" height="114" rx="6"/></clipPath>',
-            '    <linearGradient id="scanGrad" x1="0" y1="0" x2="1" y2="0">',
-            f'      <stop offset="0%" stop-color="{t["accent"]}" stop-opacity="0"/>',
-            f'      <stop offset="50%" stop-color="{t["accent"]}" stop-opacity="0.16"/>',
-            f'      <stop offset="100%" stop-color="{t["accent"]}" stop-opacity="0"/>',
+            '    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">',
+            f'      <stop offset="0%" stop-color="{t["accent"]}" stop-opacity="0.28"/>',
+            f'      <stop offset="100%" stop-color="{t["accent"]}" stop-opacity="0.02"/>',
             "    </linearGradient>",
             "  </defs>",
-            f'  <rect width="900" height="226" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
-            f'  <rect x="14" y="14" width="872" height="198" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="0.9"/>',
+            f'  <rect width="900" height="228" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
+            f'  <rect x="14" y="14" width="872" height="200" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="0.9"/>',
             f'  <circle cx="32" cy="34" r="3.5" fill="{t["sage"]}">',
             '    <animate attributeName="opacity" values="1;0.35;1" dur="2.2s" repeatCount="indefinite"/>',
             "  </circle>",
-            f'  <text x="44" y="38" font-family="{MONO_FONT}" font-size="11" font-weight="700" letter-spacing="0.8" fill="{t["text"]}">LIVE GITHUB PULSE</text>',
+            f'  <text x="44" y="38" font-family="{MONO_FONT}" font-size="11" font-weight="700" letter-spacing="0.8" fill="{t["text"]}">52-WEEK GITHUB ACTIVITY</text>',
             f'  <text x="872" y="38" text-anchor="end" font-family="{MONO_FONT}" font-size="10.8" fill="{t["muted"]}">{esc(summary)}</text>',
-            *cells_svg,
-            '  <g clip-path="url(#heatClip)">',
-            '    <rect x="-120" y="50" width="120" height="114" fill="url(#scanGrad)">',
-            '      <animateTransform attributeName="transform" type="translate" from="0 0" to="1040 0" dur="7s" repeatCount="indefinite"/>',
-            "    </rect>",
-            "  </g>",
+            *chart_svg,
             f'  <rect x="{bar_x}" y="{bar_y}" width="{bar_w}" height="{bar_h}" rx="3" fill="{t["surface_alt"]}"/>',
             *bar_rects,
             *legend_els,
@@ -878,7 +848,6 @@ def main() -> int:
 
     for mode in ("dark", "light"):
         (ASSETS_DIR / f"hero-{mode}.svg").write_text(build_hero_svg(mode), encoding="utf-8")
-        (ASSETS_DIR / f"lab-console-{mode}.svg").write_text(build_lab_console_svg(mode), encoding="utf-8")
         (ASSETS_DIR / f"footer-{mode}.svg").write_text(build_footer_svg(mode), encoding="utf-8")
         if gh_stats is not None:
             (ASSETS_DIR / f"pulse-{mode}.svg").write_text(
@@ -902,8 +871,8 @@ def main() -> int:
 
     README_PATH.write_text(readme_text, encoding="utf-8")
     print(
-        f"[ok] Synced kinetic lab SVGs & README "
-        f"(gh={bool(gh_stats)}, contrib_days={len(contribs['cells']) if contribs else 0}, "
+        f"[ok] Synced polished kinetic SVGs & README "
+        f"(gh={bool(gh_stats)}, weeks={len(contribs['weeks']) if contribs else 0}, "
         f"credly={credly_count}, articles={len(articles or [])}, videos={len(videos or [])})"
     )
     return 0

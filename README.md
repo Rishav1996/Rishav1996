@@ -34,17 +34,6 @@
   <a href="mailto:rishavsaigal@gmail.com"><img src="https://img.shields.io/badge/Email-rishavsaigal%40gmail.com-131922?style=flat-square&logo=gmail&logoColor=58a6ff" alt="Email"/></a>
 </div>
 
-<br/>
-
-<!-- Animated Lab Terminal + 22-Signal Drift Oscilloscope -->
-<div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/lab-console-dark.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="./assets/lab-console-light.svg" />
-    <img width="100%" src="./assets/lab-console-dark.svg" alt="AI Lab Console and Drift Oscilloscope" />
-  </picture>
-</div>
-
 ---
 
 ### 🧪 Open-Source Workshop & Research Labs
@@ -120,21 +109,13 @@ Supervisor + ML Sub-Agents (`Classification`, `Regression`, `Clustering`, `TimeS
 
 ---
 
-### 🧠 Lab Architecture & Kinetic Toolkit
-
-```mermaid
-flowchart LR
-    R["Open Research<br/>LLM Behavioral Drift · A2UI · Model Routing"] --> O["Agentic Orchestration<br/>Google ADK · LangGraph · CrewAI · FastMCP · Ollama"]
-    O --> M["Modeling & XAI<br/>Causal Inference · HLM · SARIMAX / LSTM · SHAP"]
-    M --> P["Runtime & Serving<br/>FastAPI · Docker · MLflow · Streamlit · Cloud Run"]
-```
+### 🛠️ Stack & Tooling
 
 <div align="center">
-  <br/>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=python,js,fastapi,docker,gcp,aws,azure,postgres,mysql,redis&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://skillicons.dev/icons?i=python,js,fastapi,docker,gcp,aws,azure,postgres,mysql,redis&theme=light" />
-    <img src="https://skillicons.dev/icons?i=python,js,fastapi,docker,gcp,aws,azure,postgres,mysql,redis&theme=dark" alt="Core Languages and Infrastructure" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=python,js,bash,git,fastapi,docker,gcp,aws,azure,postgres,mysql,redis,tensorflow&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://skillicons.dev/icons?i=python,js,bash,git,fastapi,docker,gcp,aws,azure,postgres,mysql,redis,tensorflow&theme=light" />
+    <img src="https://skillicons.dev/icons?i=python,js,bash,git,fastapi,docker,gcp,aws,azure,postgres,mysql,redis,tensorflow&theme=dark" alt="Languages, Infrastructure and Core Tooling" />
   </picture>
   <br/><br/>
   <img src="https://img.shields.io/badge/Google_ADK-131922?style=flat-square&logo=google&logoColor=58a6ff" alt="Google ADK"/>
@@ -146,6 +127,8 @@ flowchart LR
   <img src="https://img.shields.io/badge/MLflow-131922?style=flat-square&logo=mlflow&logoColor=58a6ff" alt="MLflow"/>
   <img src="https://img.shields.io/badge/PyCaret-131922?style=flat-square" alt="PyCaret"/>
   <img src="https://img.shields.io/badge/SHAP_XAI-131922?style=flat-square" alt="SHAP XAI"/>
+  <img src="https://img.shields.io/badge/Causal_Inference-131922?style=flat-square" alt="Causal Inference"/>
+  <img src="https://img.shields.io/badge/Time_Series-131922?style=flat-square" alt="Time Series"/>
 </div>
 
 ---
