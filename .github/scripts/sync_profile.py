@@ -545,6 +545,130 @@ def build_hero_svg(mode: str) -> str:
     )
 
 
+def build_stack_svg(mode: str) -> str:
+    """Option 1: 900x264 Dark/Light 2x2 Bento Stack & Tooling card matching Executive Studio."""
+    t = THEMES[mode]
+    quadrants = [
+        (
+            14,
+            14,
+            "AGENTIC & LLM SYSTEMS",
+            t["accent"],
+            "nodes",
+            [
+                ["Google ADK", "LangGraph", "CrewAI", "LangChain"],
+                ["FastMCP", "A2UI", "Ollama", "Hugging Face"],
+            ],
+        ),
+        (
+            458,
+            14,
+            "MODELING, FORECASTING & XAI",
+            t["sage"],
+            "bars",
+            [
+                ["Scikit-Learn", "TensorFlow", "Keras", "PyCaret"],
+                ["SHAP (XAI)", "Causal Inference", "HLM", "SARIMAX · Prophet"],
+            ],
+        ),
+        (
+            14,
+            139,
+            "CLOUD & MLOPS",
+            t["sage"],
+            "layers",
+            [
+                ["GCP Vertex AI", "Cloud Run", "Agent Engine", "Docker"],
+                ["AWS SageMaker", "Azure Databricks", "MLflow", "DataRobot"],
+            ],
+        ),
+        (
+            458,
+            139,
+            "LANGUAGES, APIS & DATA",
+            t["accent"],
+            "code",
+            [
+                ["Python", "JavaScript", "FastAPI", "Streamlit"],
+                ["PySpark", "PostgreSQL", "MySQL", "Redis"],
+            ],
+        ),
+    ]
+
+    card_w, card_h = 428, 111
+    clips: list[str] = []
+    cards_svg: list[str] = []
+
+    for idx, (cx, cy, title, accent, icon_kind, rows) in enumerate(quadrants):
+        clips.append(f'    <clipPath id="qClip{idx}"><rect x="{cx}" y="{cy}" width="{card_w}" height="{card_h}" rx="9"/></clipPath>')
+
+        if icon_kind == "nodes":
+            ix, iy = cx + 18, cy + 16
+            icon_svg = (
+                f'  <line x1="{ix}" y1="{iy+9}" x2="{ix+6}" y2="{iy+1}" stroke="{accent}" stroke-width="1.3"/>'
+                f'<line x1="{ix+6}" y1="{iy+1}" x2="{ix+12}" y2="{iy+9}" stroke="{accent}" stroke-width="1.3"/>'
+                f'<circle cx="{ix}" cy="{iy+9}" r="2.2" fill="{accent}"/>'
+                f'<circle cx="{ix+6}" cy="{iy+1}" r="2.2" fill="{accent}"/>'
+                f'<circle cx="{ix+12}" cy="{iy+9}" r="2.2" fill="{accent}"/>'
+            )
+        elif icon_kind == "bars":
+            ix, iy = cx + 17, cy + 16
+            icon_svg = (
+                f'  <rect x="{ix}" y="{iy+6}" width="3" height="5" rx="1" fill="{accent}"/>'
+                f'<rect x="{ix+5}" y="{iy+2}" width="3" height="9" rx="1" fill="{accent}"/>'
+                f'<rect x="{ix+10}" y="{iy}" width="3" height="11" rx="1" fill="{accent}"/>'
+            )
+        elif icon_kind == "layers":
+            ix, iy = cx + 17, cy + 16
+            icon_svg = (
+                f'  <polygon points="{ix+6},{iy} {ix+13},{iy+3.5} {ix+6},{iy+7} {ix-1},{iy+3.5}" fill="none" stroke="{accent}" stroke-width="1.2"/>'
+                f'<polyline points="{ix-1},{iy+7.2} {ix+6},{iy+10.7} {ix+13},{iy+7.2}" fill="none" stroke="{accent}" stroke-width="1.2"/>'
+            )
+        else:
+            ix, iy = cx + 17, cy + 16
+            icon_svg = (
+                f'  <polyline points="{ix+4},{iy+1} {ix},{iy+5.5} {ix+4},{iy+10}" fill="none" stroke="{accent}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<polyline points="{ix+9},{iy+1} {ix+13},{iy+5.5} {ix+9},{iy+10}" fill="none" stroke="{accent}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
+            )
+
+        cards_svg.extend(
+            [
+                f'  <rect x="{cx}" y="{cy}" width="{card_w}" height="{card_h}" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>',
+                f'  <g clip-path="url(#qClip{idx})">',
+                f'    <rect x="{cx}" y="{cy}" width="{card_w}" height="3" fill="{accent}">',
+                f'      <animate attributeName="width" from="0" to="{card_w}" dur="1.1s" begin="{idx * 0.12:.2f}s" fill="freeze"/>',
+                "    </rect>",
+                "  </g>",
+                icon_svg,
+                f'  <text x="{cx + 38}" y="{cy + 25}" font-family="{MONO_FONT}" font-size="10.6" font-weight="700" letter-spacing="0.8" fill="{t["text"]}">{esc(title)}</text>',
+                f'  <line x1="{cx + 14}" y1="{cy + 36}" x2="{cx + card_w - 14}" y2="{cy + 36}" stroke="{t["border"]}" stroke-width="0.9"/>',
+            ]
+        )
+
+        for r_idx, row in enumerate(rows):
+            py = cy + 46 + r_idx * 30
+            px = cx + 16
+            for label in row:
+                pw = max(48, round(len(label) * 6.0 + 18))
+                cards_svg.append(
+                    f'  <rect x="{px}" y="{py}" width="{pw}" height="24" rx="6" fill="{t["surface_alt"]}" stroke="{t["border"]}" stroke-width="0.9"/>'
+                    f'<text x="{px + pw / 2:.1f}" y="{py + 15.6:.1f}" text-anchor="middle" font-family="{SANS_FONT}" font-size="10.4" font-weight="600" fill="{t["text"]}">{esc(label)}</text>'
+                )
+                px += pw + 7
+
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 264" width="900" height="264" role="img" aria-label="Stack and Tooling Bento Matrix">',
+            "  <defs>",
+            *clips,
+            "  </defs>",
+            f'  <rect width="900" height="264" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
+            *cards_svg,
+            "</svg>\n",
+        ]
+    )
+
+
 def build_pulse_svg(
     mode: str,
     gh: dict[str, Any],
@@ -848,6 +972,7 @@ def main() -> int:
 
     for mode in ("dark", "light"):
         (ASSETS_DIR / f"hero-{mode}.svg").write_text(build_hero_svg(mode), encoding="utf-8")
+        (ASSETS_DIR / f"stack-{mode}.svg").write_text(build_stack_svg(mode), encoding="utf-8")
         (ASSETS_DIR / f"footer-{mode}.svg").write_text(build_footer_svg(mode), encoding="utf-8")
         if gh_stats is not None:
             (ASSETS_DIR / f"pulse-{mode}.svg").write_text(

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 264" width="900" height="264" role="img" aria-label="Stack and Tooling Bento Matrix">
+  <defs>
+    <clipPath id="qClip0"><rect x="14" y="14" width="428" height="111" rx="9"/></clipPath>
+    <clipPath id="qClip1"><rect x="458" y="14" width="428" height="111" rx="9"/></clipPath>
+    <clipPath id="qClip2"><rect x="14" y="139" width="428" height="111" rx="9"/></clipPath>
+    <clipPath id="qClip3"><rect x="458" y="139" width="428" height="111" rx="9"/></clipPath>
+  </defs>
+  <rect width="900" height="264" rx="12" fill="#f8fafc" stroke="#d0d7de" stroke-width="1.1"/>
+  <rect x="14" y="14" width="428" height="111" rx="9" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+  <g clip-path="url(#qClip0)">
+    <rect x="14" y="14" width="428" height="3" fill="#0F2942">
+      <animate attributeName="width" from="0" to="428" dur="1.1s" begin="0.00s" fill="freeze"/>
+    </rect>
+  </g>
+  <line x1="32" y1="39" x2="38" y2="31" stroke="#0F2942" stroke-width="1.3"/><line x1="38" y1="31" x2="44" y2="39" stroke="#0F2942" stroke-width="1.3"/><circle cx="32" cy="39" r="2.2" fill="#0F2942"/><circle cx="38" cy="31" r="2.2" fill="#0F2942"/><circle cx="44" cy="39" r="2.2" fill="#0F2942"/>
+  <text x="52" y="39" font-family="'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace" font-size="10.6" font-weight="700" letter-spacing="0.8" fill="#1f2328">AGENTIC &amp; LLM SYSTEMS</text>
+  <line x1="28" y1="50" x2="428" y2="50" stroke="#d0d7de" stroke-width="0.9"/>
+  <rect x="30" y="60" width="78" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="69.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Google ADK</text>
+  <rect x="115" y="60" width="72" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="151.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">LangGraph</text>
+  <rect x="194" y="60" width="54" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="221.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">CrewAI</text>
+  <rect x="255" y="60" width="72" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="291.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">LangChain</text>
+  <rect x="30" y="90" width="60" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="60.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">FastMCP</text>
+  <rect x="97" y="90" width="48" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="121.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">A2UI</text>
+  <rect x="152" y="90" width="54" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="179.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Ollama</text>
+  <rect x="213" y="90" width="90" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="258.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Hugging Face</text>
+  <rect x="458" y="14" width="428" height="111" rx="9" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+  <g clip-path="url(#qClip1)">
+    <rect x="458" y="14" width="428" height="3" fill="#2d6a4f">
+      <animate attributeName="width" from="0" to="428" dur="1.1s" begin="0.12s" fill="freeze"/>
+    </rect>
+  </g>
+  <rect x="475" y="36" width="3" height="5" rx="1" fill="#2d6a4f"/><rect x="480" y="32" width="3" height="9" rx="1" fill="#2d6a4f"/><rect x="485" y="30" width="3" height="11" rx="1" fill="#2d6a4f"/>
+  <text x="496" y="39" font-family="'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace" font-size="10.6" font-weight="700" letter-spacing="0.8" fill="#1f2328">MODELING, FORECASTING &amp; XAI</text>
+  <line x1="472" y1="50" x2="872" y2="50" stroke="#d0d7de" stroke-width="0.9"/>
+  <rect x="474" y="60" width="90" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="519.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Scikit-Learn</text>
+  <rect x="571" y="60" width="78" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="610.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">TensorFlow</text>
+  <rect x="656" y="60" width="48" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="680.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Keras</text>
+  <rect x="711" y="60" width="60" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="741.0" y="75.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">PyCaret</text>
+  <rect x="474" y="90" width="78" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="513.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">SHAP (XAI)</text>
+  <rect x="559" y="90" width="114" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="616.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Causal Inference</text>
+  <rect x="680" y="90" width="48" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="704.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">HLM</text>
+  <rect x="735" y="90" width="120" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="795.0" y="105.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">SARIMAX · Prophet</text>
+  <rect x="14" y="139" width="428" height="111" rx="9" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+  <g clip-path="url(#qClip2)">
+    <rect x="14" y="139" width="428" height="3" fill="#2d6a4f">
+      <animate attributeName="width" from="0" to="428" dur="1.1s" begin="0.24s" fill="freeze"/>
+    </rect>
+  </g>
+  <polygon points="37,155 44,158.5 37,162 30,158.5" fill="none" stroke="#2d6a4f" stroke-width="1.2"/><polyline points="30,162.2 37,165.7 44,162.2" fill="none" stroke="#2d6a4f" stroke-width="1.2"/>
+  <text x="52" y="164" font-family="'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace" font-size="10.6" font-weight="700" letter-spacing="0.8" fill="#1f2328">CLOUD &amp; MLOPS</text>
+  <line x1="28" y1="175" x2="428" y2="175" stroke="#d0d7de" stroke-width="0.9"/>
+  <rect x="30" y="185" width="96" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="78.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">GCP Vertex AI</text>
+  <rect x="133" y="185" width="72" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="169.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Cloud Run</text>
+  <rect x="212" y="185" width="90" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="257.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Agent Engine</text>
+  <rect x="309" y="185" width="54" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="336.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Docker</text>
+  <rect x="30" y="215" width="96" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="78.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">AWS SageMaker</text>
+  <rect x="133" y="215" width="114" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="190.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Azure Databricks</text>
+  <rect x="254" y="215" width="54" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="281.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">MLflow</text>
+  <rect x="315" y="215" width="72" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="351.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">DataRobot</text>
+  <rect x="458" y="139" width="428" height="111" rx="9" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+  <g clip-path="url(#qClip3)">
+    <rect x="458" y="139" width="428" height="3" fill="#0F2942">
+      <animate attributeName="width" from="0" to="428" dur="1.1s" begin="0.36s" fill="freeze"/>
+    </rect>
+  </g>
+  <polyline points="479,156 475,160.5 479,165" fill="none" stroke="#0F2942" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="484,156 488,160.5 484,165" fill="none" stroke="#0F2942" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="496" y="164" font-family="'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace" font-size="10.6" font-weight="700" letter-spacing="0.8" fill="#1f2328">LANGUAGES, APIS &amp; DATA</text>
+  <line x1="472" y1="175" x2="872" y2="175" stroke="#d0d7de" stroke-width="0.9"/>
+  <rect x="474" y="185" width="54" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="501.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Python</text>
+  <rect x="535" y="185" width="78" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="574.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">JavaScript</text>
+  <rect x="620" y="185" width="60" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="650.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">FastAPI</text>
+  <rect x="687" y="185" width="72" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="723.0" y="200.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Streamlit</text>
+  <rect x="474" y="215" width="60" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="504.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">PySpark</text>
+  <rect x="541" y="215" width="78" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="580.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">PostgreSQL</text>
+  <rect x="626" y="215" width="48" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="650.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">MySQL</text>
+  <rect x="681" y="215" width="48" height="24" rx="6" fill="#f1f5f9" stroke="#d0d7de" stroke-width="0.9"/><text x="705.0" y="230.6" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="10.4" font-weight="600" fill="#1f2328">Redis</text>
+</svg>

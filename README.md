@@ -113,22 +113,10 @@ Supervisor + ML Sub-Agents (`Classification`, `Regression`, `Clustering`, `TimeS
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=python,js,bash,git,fastapi,docker,gcp,aws,azure,postgres,mysql,redis,tensorflow&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://skillicons.dev/icons?i=python,js,bash,git,fastapi,docker,gcp,aws,azure,postgres,mysql,redis,tensorflow&theme=light" />
-    <img src="https://skillicons.dev/icons?i=python,js,bash,git,fastapi,docker,gcp,aws,azure,postgres,mysql,redis,tensorflow&theme=dark" alt="Languages, Infrastructure and Core Tooling" />
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/stack-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="./assets/stack-light.svg" />
+    <img width="100%" src="./assets/stack-dark.svg" alt="Stack and Tooling Bento Matrix" />
   </picture>
-  <br/><br/>
-  <img src="https://img.shields.io/badge/Google_ADK-131922?style=flat-square&logo=google&logoColor=58a6ff" alt="Google ADK"/>
-  <img src="https://img.shields.io/badge/LangGraph-131922?style=flat-square&logo=graphql&logoColor=52b788" alt="LangGraph"/>
-  <img src="https://img.shields.io/badge/CrewAI-131922?style=flat-square&logo=crewai&logoColor=58a6ff" alt="CrewAI"/>
-  <img src="https://img.shields.io/badge/FastMCP-131922?style=flat-square&logo=fastapi&logoColor=52b788" alt="FastMCP"/>
-  <img src="https://img.shields.io/badge/Ollama-131922?style=flat-square&logo=ollama&logoColor=e6edf3" alt="Ollama"/>
-  <img src="https://img.shields.io/badge/Hugging_Face-131922?style=flat-square&logo=huggingface&logoColor=c5a059" alt="Hugging Face"/>
-  <img src="https://img.shields.io/badge/MLflow-131922?style=flat-square&logo=mlflow&logoColor=58a6ff" alt="MLflow"/>
-  <img src="https://img.shields.io/badge/PyCaret-131922?style=flat-square" alt="PyCaret"/>
-  <img src="https://img.shields.io/badge/SHAP_XAI-131922?style=flat-square" alt="SHAP XAI"/>
-  <img src="https://img.shields.io/badge/Causal_Inference-131922?style=flat-square" alt="Causal Inference"/>
-  <img src="https://img.shields.io/badge/Time_Series-131922?style=flat-square" alt="Time Series"/>
 </div>
 
 ---
