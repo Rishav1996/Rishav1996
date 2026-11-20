@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you reference Rishav Saigal's open research software, datasets, or architectural benchmarks, please cite using the metadata below."
+type: software
+title: "Rishav Saigal — Agentic AI & LLM Behavioral Drift Research Portfolio"
+authors:
+  - family-names: "Saigal"
+    given-names: "Rishav"
+    orcid: "https://orcid.org/0009-0005-5548-3016"
+    affiliation: "Indian Institute of Technology Patna"
+    email: "rishavsaigal@gmail.com"
+url: "https://rishavsaigal.web.app/"
+repository-code: "https://github.com/Rishav1996/Rishav1996"
+keywords:
+  - "Agentic AI"
+  - "Multi-Agent Systems"
+  - "LLM Behavioral Drift"
+  - "Calcification Effect"
+  - "Model Routing"
+  - "A2UI"
+  - "Time Series MLOps"
+  - "Causal Inference"

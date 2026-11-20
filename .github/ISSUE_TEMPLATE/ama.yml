@@ -1,0 +1,27 @@
+name: Architecture / Research AMA
+description: Ask Rishav Saigal a question about Agentic AI systems, LLM behavioral drift research, or production MLOps.
+title: "[AMA] "
+labels: ["ama"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Welcome! Use this form to ask an architectural or research question.
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Agentic AI & Multi-Agent Architecture
+        - LLM Behavioral Drift & Ph.D. Research
+        - Production MLOps & Time Series Forecasting
+        - Advisory / Speaking / Collaboration
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question or Topic Details
+      description: Share context, architectural constraints, or research papers you are referencing.
+    validations:
+      required: true

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 205" width="900" height="205" role="img" aria-label="Rishav Saigal — Executive AI Architect and Ph.D. Candidate">
+  <rect width="900" height="205" rx="14" fill="#0c1017" stroke="#222c3a" stroke-width="1.2"/>
+  <rect x="14" y="14" width="872" height="177" rx="10" fill="#131922" stroke="#222c3a" stroke-width="0.9"/>
+
+  <!-- Architectural corner brackets (no neon glow) -->
+  <path d="M 28 42 L 28 28 L 46 28" fill="none" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M 854 28 L 872 28 L 872 42" fill="none" stroke="#58a6ff" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M 28 163 L 28 177 L 46 177" fill="none" stroke="#52b788" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M 854 177 L 872 177 L 872 163" fill="none" stroke="#52b788" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Status pill -->
+  <rect x="330" y="31" width="240" height="22" rx="11" fill="#18202c" stroke="#222c3a" stroke-width="1"/>
+  <circle cx="346" cy="42" r="3.5" fill="#52b788"/>
+  <text x="456" y="46" text-anchor="middle" font-family="'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace" font-size="10.2" font-weight="600" letter-spacing="0.9" fill="#52b788">EXECUTIVE AI ARCHITECT  ·  PH.D. CANDIDATE</text>
+
+  <!-- Primary Name -->
+  <text x="450" y="101" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="40" font-weight="800" letter-spacing="2.2" fill="#e6edf3">RISHAV SAIGAL</text>
+
+  <!-- Canonical ATS Role Headline -->
+  <text x="450" y="128" text-anchor="middle" font-family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif" font-size="13.2" font-weight="600" letter-spacing="0.4" fill="#58a6ff">Senior Data Scientist  |  Machine Learning Engineer  |  Generative AI / Agentic AI Engineer  |  AI Architect</text>
+
+  <line x1="80" y1="145" x2="820" y2="145" stroke="#222c3a" stroke-width="1"/>
+
+  <!-- Bottom Verified Telemetry Line -->
+  <text x="450" y="169" text-anchor="middle" font-family="'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace" font-size="11.2" fill="#8b949e">Manager @ Cognizant (8+ Yrs)  •  Ph.D. Scholar @ IIT Patna (2026–2029)  •  9 Credly Badges  •  12 Publications  •  3 Zenodo DOIs</text>
+</svg>
