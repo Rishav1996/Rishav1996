@@ -1,50 +1,59 @@
 #!/usr/bin/env python3
 """
-Automated profile sync & Executive Studio Dark/Light SVG generator for Rishav1996/Rishav1996.
+Automated animated SVG engine & live profile sync for Rishav1996/Rishav1996.
 
 Uses Python standard library only so GitHub Actions executes with zero external pip installs.
-- Fetches live GitHub user/repo stats, Credly badges, Medium RSS articles, and YouTube Atom videos.
-- Generates 6 adaptive SVGs in assets/ (hero, KPI scorecard, telemetry) matching Executive Studio tokens.
-- Updates designated marker blocks in README.md without duplicating DOI triad papers.
+- Fetches live GitHub user/repo stats, 365-day contribution calendar, Credly badges,
+  Medium RSS articles (deduplicated against DOI triad labs), and YouTube Atom videos.
+- Generates 8 animated Dark/Light Executive Studio SVGs in assets/ (SMIL <animate*>):
+    1. hero-dark.svg / hero-light.svg          (Neural Agent Graph + 3Hz Horology Wheel + Sine Waves)
+    2. lab-console-dark.svg / lab-console-light.svg (lab.toml Console + 22-Signal Drift Oscilloscope)
+    3. pulse-dark.svg / pulse-light.svg        (Live 365-Day Heatmap + Scanner + Animated Language Bar)
+    4. footer-dark.svg / footer-light.svg      (Counter-Flowing Dual Waves + Rising Signal Nodes)
+- Updates marker blocks in README.md without touching or repeating any resume details.
 """
 
 from __future__ import annotations
 
 import html
 import json
+import math
 import os
 import re
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 README_PATH = ROOT / "README.md"
 ASSETS_DIR = ROOT / "assets"
+
+SNAKE_DARK = ASSETS_DIR / "github-snake-dark.svg"
+SNAKE_LIGHT = ASSETS_DIR / "github-snake-light.svg"
 CONTRIB_3D_DARK = ROOT / "profile-3d-contrib" / "profile-night-view.svg"
 CONTRIB_3D_LIGHT = ROOT / "profile-3d-contrib" / "profile-green-animate.svg"
 
 GH_USER = "Rishav1996"
+CONTRIB_HTML_URL = f"https://github.com/users/{GH_USER}/contributions"
 CREDLY_JSON_URL = "https://www.credly.com/users/rishav-saigal.ae0679ae/badges.json"
 MEDIUM_RSS_URL = "https://medium.com/feed/@rishavsaigal"
 YOUTUBE_ATOM_URL = "https://www.youtube.com/feeds/videos.xml?channel_id=UCh2FmsvvhBsu8L0HsJgh9-A"
 
-# Articles already represented 1:1 in the DOI-Indexed Research Artifacts triad table
+# Papers already paired 1:1 with code + Zenodo DOI in Research Labs
 TRIAD_PAPER_SLUGS = {
     "e41c3d2d5152",  # The $300B Search Dilemma -> a2ui-ad-component
     "a6505c9053ce",  # Claude Model Routing -> model-router
     "aeaeb904d096",  # Measuring Behavioral Drift in LLMs -> LLMDriftExperiment
 }
 
-# Superseded/duplicate Medium posts intentionally excluded from resume & portfolio (v17+)
+# Superseded/duplicate drafts intentionally excluded
 EXCLUDED_MEDIUM_SLUGS = TRIAD_PAPER_SLUGS | {
-    "7935a75f8035",  # From Automation to Autonomy (superseded duplicate of AutoML on Autopilot)
+    "7935a75f8035",  # Superseded duplicate of AutoML on Autopilot
 }
 
-# Curated standalone articles (Medium, Towards AI, LinkedIn) so archive stays complete & deduplicated
 CURATED_STANDALONE_ARTICLES: list[dict[str, str]] = [
     {
         "title": "The Specialized Frontier: An Inquiry into Gated AI Architectures and the Cooperative Safety Flywheel",
@@ -112,7 +121,7 @@ CURATED_STANDALONE_ARTICLES: list[dict[str, str]] = [
     },
 ]
 
-THEMES: dict[str, dict[str, str]] = {
+THEMES: dict[str, dict[str, Any]] = {
     "dark": {
         "bg": "#0c1017",
         "surface": "#131922",
@@ -120,6 +129,7 @@ THEMES: dict[str, dict[str, str]] = {
         "border": "#222c3a",
         "accent": "#58a6ff",
         "sage": "#52b788",
+        "brass": "#c5a059",
         "text": "#e6edf3",
         "muted": "#8b949e",
         "dim": "#6e7681",
@@ -127,6 +137,7 @@ THEMES: dict[str, dict[str, str]] = {
         "lang_2": "#52b788",
         "lang_3": "#79c0ff",
         "lang_4": "#6e7681",
+        "heat": ["#161b22", "#163554", "#1f5382", "#3478bd", "#58a6ff"],
     },
     "light": {
         "bg": "#f8fafc",
@@ -135,6 +146,7 @@ THEMES: dict[str, dict[str, str]] = {
         "border": "#d0d7de",
         "accent": "#0F2942",
         "sage": "#2d6a4f",
+        "brass": "#b48a3e",
         "text": "#1f2328",
         "muted": "#57606a",
         "dim": "#6e7781",
@@ -142,6 +154,7 @@ THEMES: dict[str, dict[str, str]] = {
         "lang_2": "#2d6a4f",
         "lang_3": "#2563eb",
         "lang_4": "#94a3b8",
+        "heat": ["#ebedf0", "#cfe1f5", "#8ebae5", "#3b7ec2", "#0F2942"],
     },
 }
 
@@ -154,7 +167,7 @@ def esc(val: Any) -> str:
 
 
 def http_get(url: str, headers: dict[str, str] | None = None, timeout: int = 15) -> str:
-    req_headers = {"User-Agent": "Rishav1996-ProfileSync/2.0"}
+    req_headers = {"User-Agent": "Rishav1996-ProfileSync/3.0"}
     if headers:
         req_headers.update(headers)
     req = urllib.request.Request(url, headers=req_headers)
@@ -184,7 +197,7 @@ def fetch_github_stats() -> dict[str, Any] | None:
             http_get(f"https://api.github.com/users/{GH_USER}/repos?per_page=100&type=owner", headers=headers)
         )
     except (urllib.error.URLError, json.JSONDecodeError, TimeoutError) as exc:
-        print(f"[warn] GitHub fetch failed: {exc}")
+        print(f"[warn] GitHub API fetch failed: {exc}")
         return None
 
     owned = [r for r in repos_data if not r.get("fork")]
@@ -214,6 +227,50 @@ def fetch_github_stats() -> dict[str, Any] | None:
         "followers": int(user_data.get("followers", 0)),
         "total_stars": total_stars,
         "languages": top_langs,
+    }
+
+
+def fetch_contributions() -> dict[str, Any] | None:
+    try:
+        raw_html = http_get(CONTRIB_HTML_URL)
+    except (urllib.error.URLError, TimeoutError) as exc:
+        print(f"[warn] GitHub contributions fetch failed: {exc}")
+        return None
+
+    m_total = re.search(r"([\d,]+)\s+contributions\s+in\s+the\s+last\s+year", raw_html)
+    total_str = m_total.group(1) if m_total else "0"
+
+    day_levels: dict[str, int] = {}
+    for tag in re.findall(r"<td\b[^>]*>", raw_html):
+        d_m = re.search(r'data-date="(\d{4}-\d{2}-\d{2})"', tag)
+        l_m = re.search(r'data-level="(\d)"', tag)
+        if d_m and l_m:
+            day_levels[d_m.group(1)] = int(l_m.group(1))
+
+    if not day_levels:
+        return None
+
+    days_sorted = sorted(day_levels.items(), key=lambda kv: kv[0])
+    # Organize into Sunday-first weekly columns
+    first_dt = datetime.strptime(days_sorted[0][0], "%Y-%m-%d").date()
+    sun_offset = (first_dt.weekday() + 1) % 7
+    grid_start = first_dt - timedelta(days=sun_offset)
+
+    cells: list[tuple[int, int, int]] = []
+    max_col = 0
+    for date_str, lvl in days_sorted:
+        dt = datetime.strptime(date_str, "%Y-%m-%d").date()
+        delta = (dt - grid_start).days
+        col = delta // 7
+        row = delta % 7
+        if col > max_col:
+            max_col = col
+        cells.append((col, row, lvl))
+
+    return {
+        "total_str": total_str,
+        "num_weeks": max_col + 1,
+        "cells": cells,
     }
 
 
@@ -302,7 +359,6 @@ def fetch_standalone_articles() -> list[dict[str, str]] | None:
             except ValueError:
                 pass
 
-        # Preserve curated non-truncated title if slug already curated, while updating URL/date cleanly
         if slug in by_slug:
             if disp_date:
                 by_slug[slug]["display_date"] = disp_date
@@ -340,7 +396,11 @@ def fetch_youtube_videos(limit: int = 3) -> list[dict[str, str]] | None:
         title = (entry.findtext("a:title", "", ns) or "").strip()
         pub = (entry.findtext("a:published", "", ns) or "")[:10]
         link_el = entry.find("a:link", ns)
-        href = link_el.attrib.get("href", f"https://www.youtube.com/watch?v={vid}") if link_el is not None else f"https://www.youtube.com/watch?v={vid}"
+        href = (
+            link_el.attrib.get("href", f"https://www.youtube.com/watch?v={vid}")
+            if link_el is not None
+            else f"https://www.youtube.com/watch?v={vid}"
+        )
         if vid and title:
             videos.append(
                 {
@@ -354,130 +414,364 @@ def fetch_youtube_videos(limit: int = 3) -> list[dict[str, str]] | None:
     return videos
 
 
-def build_hero_svg(mode: str, credly_count: int, pub_count: int) -> str:
+def _sine_wave_path(
+    width: int, baseline_y: float, amplitude: float, cycles: int, phase: float, bottom_y: float
+) -> str:
+    step = 18
+    pts: list[str] = []
+    for x in range(0, width + step, step):
+        y = baseline_y + amplitude * math.sin((2.0 * math.pi * cycles * x / 900.0) + phase)
+        cmd = "M" if x == 0 else "L"
+        pts.append(f"{cmd} {x} {y:.1f}")
+    pts.append(f"L {width} {bottom_y:.1f} L 0 {bottom_y:.1f} Z")
+    return " ".join(pts)
+
+
+def _sine_stroke_path(width: int, baseline_y: float, amplitude: float, cycles: float, phase: float) -> str:
+    step = 8
+    pts: list[str] = []
+    for x in range(0, width + step, step):
+        y = baseline_y + amplitude * math.sin((2.0 * math.pi * cycles * x / 320.0) + phase)
+        cmd = "M" if x == 0 else "L"
+        pts.append(f"{cmd} {x} {y:.1f}")
+    return " ".join(pts)
+
+
+def build_hero_svg(mode: str) -> str:
     t = THEMES[mode]
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 205" width="900" height="205" role="img" aria-label="Rishav Saigal — Executive AI Architect and Ph.D. Candidate">
-  <rect width="900" height="205" rx="14" fill="{t['bg']}" stroke="{t['border']}" stroke-width="1.2"/>
-  <rect x="14" y="14" width="872" height="177" rx="10" fill="{t['surface']}" stroke="{t['border']}" stroke-width="0.9"/>
+    wave1 = _sine_wave_path(1800, 196, 12, 2, 0.0, 240)
+    wave2 = _sine_wave_path(1800, 206, 9, 3, 1.4, 240)
 
-  <!-- Architectural corner brackets (no neon glow) -->
-  <path d="M 28 42 L 28 28 L 46 28" fill="none" stroke="{t['accent']}" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M 854 28 L 872 28 L 872 42" fill="none" stroke="{t['accent']}" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M 28 163 L 28 177 L 46 177" fill="none" stroke="{t['sage']}" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M 854 177 L 872 177 L 872 163" fill="none" stroke="{t['sage']}" stroke-width="1.8" stroke-linecap="round"/>
-
-  <!-- Status pill -->
-  <rect x="330" y="31" width="240" height="22" rx="11" fill="{t['surface_alt']}" stroke="{t['border']}" stroke-width="1"/>
-  <circle cx="346" cy="42" r="3.5" fill="{t['sage']}"/>
-  <text x="456" y="46" text-anchor="middle" font-family="{MONO_FONT}" font-size="10.2" font-weight="600" letter-spacing="0.9" fill="{t['sage']}">EXECUTIVE AI ARCHITECT  ·  PH.D. CANDIDATE</text>
-
-  <!-- Primary Name -->
-  <text x="450" y="101" text-anchor="middle" font-family="{SANS_FONT}" font-size="40" font-weight="800" letter-spacing="2.2" fill="{t['text']}">RISHAV SAIGAL</text>
-
-  <!-- Canonical ATS Role Headline -->
-  <text x="450" y="128" text-anchor="middle" font-family="{SANS_FONT}" font-size="13.2" font-weight="600" letter-spacing="0.4" fill="{t['accent']}">Senior Data Scientist  |  Machine Learning Engineer  |  Generative AI / Agentic AI Engineer  |  AI Architect</text>
-
-  <line x1="80" y1="145" x2="820" y2="145" stroke="{t['border']}" stroke-width="1"/>
-
-  <!-- Bottom Verified Telemetry Line -->
-  <text x="450" y="169" text-anchor="middle" font-family="{MONO_FONT}" font-size="11.2" fill="{t['muted']}">Manager @ Cognizant (8+ Yrs)  •  Ph.D. Scholar @ IIT Patna (2026–2029)  •  {esc(credly_count)} Credly Badges  •  {esc(pub_count)} Publications  •  3 Zenodo DOIs</text>
-</svg>
-"""
-
-
-def build_kpi_svg(mode: str) -> str:
-    t = THEMES[mode]
-    cards = [
-        ("5–14d → &lt;6h", "GenAI Video Pipeline", "Google ADK · FastMCP", t["accent"]),
-        ("$2.3M Saved", "Healthcare Causal ML", "90%+ Model Accuracy", t["sage"]),
-        ("80% Resolved", "Policy QA + RBAC Flow", "Semantic Retrieval", t["accent"]),
-        ("70% Faster", "BRD → Gherkin / TMMi", "100% Req. Coverage", t["sage"]),
-        ("3d → 2 hrs", "Distributed MLOps", "Azure Databricks · -60% Ops", t["accent"]),
+    # Left and right Multi-Agent Neural Constellation paths + animated signal packets
+    edges = [
+        ("M 42 74 Q 95 45 142 96", 3.6, "0s", t["accent"]),
+        ("M 42 150 Q 95 168 142 96", 4.4, "0.8s", t["sage"]),
+        ("M 42 74 Q 58 112 42 150", 5.2, "1.6s", t["accent"]),
+        ("M 142 96 Q 178 134 114 166", 4.1, "2.1s", t["sage"]),
+        ("M 758 96 Q 804 54 856 84", 3.9, "0.4s", t["accent"]),
+        ("M 758 96 Q 804 148 854 156", 4.7, "1.3s", t["sage"]),
     ]
-    parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 112" width="900" height="112" role="img" aria-label="Production AI and ML Operational Impact Scorecard">',
-        f'  <rect width="900" height="112" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
-    ]
-    card_w = 166
-    gap = 10
-    start_x = 15
-    for idx, (metric, title, sub, accent) in enumerate(cards):
-        x = start_x + idx * (card_w + gap)
-        parts.append(f'  <rect x="{x}" y="12" width="{card_w}" height="88" rx="8" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>')
-        parts.append(f'  <rect x="{x}" y="12" width="{card_w}" height="3" rx="1.5" fill="{accent}"/>')
-        parts.append(f'  <text x="{x + 12}" y="41" font-family="{MONO_FONT}" font-size="16" font-weight="700" fill="{accent}">{metric}</text>')
-        parts.append(f'  <text x="{x + 12}" y="62" font-family="{SANS_FONT}" font-size="11.5" font-weight="700" fill="{t["text"]}">{esc(title)}</text>')
-        parts.append(f'  <text x="{x + 12}" y="81" font-family="{SANS_FONT}" font-size="10.2" fill="{t["muted"]}">{esc(sub)}</text>')
-    parts.append("</svg>\n")
-    return "\n".join(parts)
-
-
-def build_telemetry_svg(mode: str, gh: dict[str, Any], credly_count: int) -> str:
-    t = THEMES[mode]
-    lang_colors = [t["lang_1"], t["lang_2"], t["lang_3"], t["lang_4"]]
-    langs = gh.get("languages") or [("Python", 100.0, 1)]
-
-    # Build stacked horizontal bar segments (total width = 390)
-    bar_x = 466
-    bar_y = 68
-    bar_w = 390
-    bar_h = 12
-    curr_x = float(bar_x)
-    bar_rects: list[str] = []
-    legend_items: list[str] = []
-
-    for idx, (lname, pct, cnt) in enumerate(langs[:4]):
-        color = lang_colors[idx % len(lang_colors)]
-        seg_w = max(4.0, (pct / 100.0) * bar_w)
-        if idx == len(langs[:4]) - 1:
-            seg_w = max(4.0, (bar_x + bar_w) - curr_x)
-        bar_rects.append(
-            f'  <rect x="{curr_x:.1f}" y="{bar_y}" width="{seg_w:.1f}" height="{bar_h}" fill="{color}" rx="2"/>'
+    edge_paths = []
+    packet_circles = []
+    for idx, (d, dur, beg, col) in enumerate(edges):
+        edge_paths.append(
+            f'  <path id="edge{idx}" d="{d}" fill="none" stroke="{col}" stroke-width="1.2" stroke-opacity="0.32" stroke-dasharray="4 4">'
+            f'<animate attributeName="stroke-dashoffset" from="0" to="-16" dur="2.2s" repeatCount="indefinite"/>'
+            f"</path>"
         )
-        curr_x += seg_w
-
-        col = idx % 2
-        row = idx // 2
-        lx = bar_x + col * 195
-        ly = 104 + row * 24
-        legend_items.append(
-            f'  <circle cx="{lx + 5}" cy="{ly - 4}" r="4.5" fill="{color}"/>'
-            f'<text x="{lx + 16}" y="{ly}" font-family="{SANS_FONT}" font-size="11.5" font-weight="600" fill="{t["text"]}">{esc(lname)}</text>'
-            f'<text x="{lx + 180}" y="{ly}" text-anchor="end" font-family="{MONO_FONT}" font-size="11" fill="{t["muted"]}">{pct:.1f}% ({cnt})</text>'
+        packet_circles.append(
+            f'  <circle r="3" fill="{col}">'
+            f'<animateMotion path="{d}" dur="{dur}s" begin="{beg}" repeatCount="indefinite"/>'
+            f'<animate attributeName="opacity" values="0;1;1;0" dur="{dur}s" begin="{beg}" repeatCount="indefinite"/>'
+            f"</circle>"
         )
 
-    metrics = [
-        ("Public Repos", str(gh["public_repos"]), t["accent"]),
-        ("Total Stars", str(gh["total_stars"]), t["sage"]),
-        ("Followers", str(gh["followers"]), t["accent"]),
-        ("Curated OSS", "8", t["sage"]),
-        ("Zenodo DOIs", "3", t["accent"]),
-        ("Credly Badges", str(credly_count), t["sage"]),
+    nodes = [
+        (42, 74, 4.5, t["accent"], "0s"),
+        (42, 150, 4.0, t["sage"], "0.9s"),
+        (142, 96, 5.2, t["accent"], "0.4s"),
+        (114, 166, 3.8, t["sage"], "1.4s"),
+        (758, 96, 5.2, t["accent"], "0.6s"),
+        (856, 84, 4.2, t["sage"], "1.1s"),
+        (854, 156, 4.0, t["accent"], "0.2s"),
+    ]
+    node_circles = [
+        f'  <circle cx="{cx}" cy="{cy}" r="{r}" fill="{col}" fill-opacity="0.85">'
+        f'<animate attributeName="r" values="{r};{r+1.6};{r}" dur="3.2s" begin="{beg}" repeatCount="indefinite"/>'
+        f'<animate attributeName="fill-opacity" values="0.65;1;0.65" dur="3.2s" begin="{beg}" repeatCount="indefinite"/>'
+        f"</circle>"
+        for cx, cy, r, col, beg in nodes
     ]
 
-    stat_cells: list[str] = []
-    for idx, (label, val, col) in enumerate(metrics):
-        c = idx % 3
-        r = idx // 3
-        sx = 34 + c * 130
-        sy = 62 + r * 44
-        stat_cells.append(
-            f'  <text x="{sx}" y="{sy}" font-family="{MONO_FONT}" font-size="18" font-weight="700" fill="{col}">{esc(val)}</text>'
-            f'<text x="{sx}" y="{sy + 15}" font-family="{SANS_FONT}" font-size="10.5" fill="{t["muted"]}">{esc(label)}</text>'
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="900" height="240" role="img" aria-label="Rishav Saigal — AI Systems Lab and Open Research">',
+            "  <defs>",
+            '    <clipPath id="heroInner"><rect x="14" y="14" width="872" height="212" rx="11"/></clipPath>',
+            "  </defs>",
+            f'  <rect width="900" height="240" rx="14" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.2"/>',
+            f'  <rect x="14" y="14" width="872" height="212" rx="11" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="0.9"/>',
+            "",
+            "  <!-- Dual-layer flowing sine waves -->",
+            '  <g clip-path="url(#heroInner)">',
+            '    <g>',
+            f'      <path d="{wave1}" fill="{t["accent"]}" fill-opacity="0.11"/>',
+            f'      <animateTransform attributeName="transform" type="translate" from="0 0" to="-900 0" dur="14s" repeatCount="indefinite"/>',
+            "    </g>",
+            '    <g>',
+            f'      <path d="{wave2}" fill="{t["sage"]}" fill-opacity="0.13"/>',
+            f'      <animateTransform attributeName="transform" type="translate" from="-900 0" to="0 0" dur="20s" repeatCount="indefinite"/>',
+            "    </g>",
+            "  </g>",
+            "",
+            "  <!-- Multi-Agent Neural Constellations -->",
+            *edge_paths,
+            *node_circles,
+            *packet_circles,
+            "",
+            "  <!-- Horological 3Hz Balance Wheel Micro-Emblem (top-right) -->",
+            f'  <g transform="translate(842, 46)">',
+            f'    <circle cx="0" cy="0" r="14" fill="none" stroke="{t["brass"]}" stroke-width="1.2" stroke-opacity="0.55" stroke-dasharray="2 3"/>',
+            "    <g>",
+            f'      <circle cx="0" cy="0" r="9.5" fill="none" stroke="{t["brass"]}" stroke-width="1.5"/>',
+            f'      <line x1="-9.5" y1="0" x2="9.5" y2="0" stroke="{t["brass"]}" stroke-width="1.1"/>',
+            f'      <line x1="0" y1="-9.5" x2="0" y2="9.5" stroke="{t["brass"]}" stroke-width="1.1"/>',
+            f'      <circle cx="0" cy="0" r="2.3" fill="{t["brass"]}"/>',
+            '      <animateTransform attributeName="transform" type="rotate" values="-28 0 0;28 0 0;-28 0 0" dur="1.6s" repeatCount="indefinite"/>',
+            "    </g>",
+            "  </g>",
+            "",
+            "  <!-- Status Pill -->",
+            f'  <rect x="275" y="34" width="350" height="22" rx="11" fill="{t["surface_alt"]}" stroke="{t["border"]}" stroke-width="1"/>',
+            f'  <circle cx="294" cy="45" r="3.6" fill="{t["sage"]}">',
+            '    <animate attributeName="opacity" values="1;0.35;1" dur="2.2s" repeatCount="indefinite"/>',
+            "  </circle>",
+            f'  <text x="456" y="49" text-anchor="middle" font-family="{MONO_FONT}" font-size="10.2" font-weight="600" letter-spacing="0.9" fill="{t["sage"]}">AI SYSTEMS LAB  ·  OPEN RESEARCH  ·  BUILD IN PUBLIC</text>',
+            "",
+            "  <!-- Primary Name -->",
+            f'  <text x="450" y="110" text-anchor="middle" font-family="{SANS_FONT}" font-size="42" font-weight="800" letter-spacing="2.4" fill="{t["text"]}">RISHAV SAIGAL</text>',
+            "",
+            "  <!-- Animated Accent Rule -->",
+            f'  <line x1="290" y1="126" x2="610" y2="126" stroke="{t["border"]}" stroke-width="1.2"/>',
+            f'  <line x1="360" y1="126" x2="540" y2="126" stroke="{t["accent"]}" stroke-width="2" stroke-linecap="round">',
+            '    <animate attributeName="x1" values="360;310;360" dur="5s" repeatCount="indefinite"/>',
+            '    <animate attributeName="x2" values="540;590;540" dur="5s" repeatCount="indefinite"/>',
+            "  </line>",
+            "",
+            "  <!-- Builder Identity (Zero Resume Highlights) -->",
+            f'  <text x="450" y="156" text-anchor="middle" font-family="{SANS_FONT}" font-size="13.5" font-weight="600" letter-spacing="0.4" fill="{t["accent"]}">Multi-Agent Orchestration  ·  LLM Behavioral Drift  ·  Open-Source AI Tooling  ·  Horology</text>',
+            "",
+            "  <!-- Sub-caption -->",
+            f'  <text x="450" y="182" text-anchor="middle" font-family="{MONO_FONT}" font-size="10.8" fill="{t["muted"]}">FastMCP · Google ADK · LangGraph · A2UI · Zenodo Open Benchmarks · Algorhythm Chronicles</text>',
+            "</svg>\n",
+        ]
+    )
+
+
+def build_lab_console_svg(mode: str) -> str:
+    t = THEMES[mode]
+    osc_wave1 = _sine_stroke_path(640, 108, 18, 2.0, 0.0)
+    osc_wave2 = _sine_stroke_path(640, 108, 12, 3.0, 1.3)
+
+    # 22 signal equalizer bars at the base of the oscilloscope (representing 22 drift signals)
+    bars: list[str] = []
+    for i in range(22):
+        bx = 562 + i * 14
+        base_h = 5 + ((i * 5) % 9)
+        peak_h = 17 + ((i * 7) % 11)
+        dur = 1.35 + (i % 5) * 0.35
+        col = t["accent"] if i % 2 == 0 else t["sage"]
+        bars.append(
+            f'  <rect x="{bx}" y="{182 - base_h}" width="7" height="{base_h}" rx="2" fill="{col}" fill-opacity="0.82">'
+            f'<animate attributeName="height" values="{base_h};{peak_h};{base_h}" dur="{dur:.2f}s" repeatCount="indefinite"/>'
+            f'<animate attributeName="y" values="{182 - base_h};{182 - peak_h};{182 - base_h}" dur="{dur:.2f}s" repeatCount="indefinite"/>'
+            f"</rect>"
+        )
+
+    lines = [
+        ("focus", '["Multi-Agent Systems", "A2UI", "Model Routing"]'),
+        ("research", '"LLM Drift &amp; Self-Coined Calcification Effect"'),
+        ("shipping", '["a2ui-ad-component", "model-router", "PyCaretAgent"]'),
+        ("creating", '["Algorhythm Chronicles", "Mechanical Horology"]'),
+        ("resume", '"rishavsaigal.web.app/resume"  # full CV link'),
+    ]
+    toml_els = []
+    for idx, (k, v) in enumerate(lines):
+        y = 80 + idx * 24
+        toml_els.append(
+            f'  <text x="34" y="{y}" font-family="{MONO_FONT}" font-size="11.3" font-weight="700" fill="{t["sage"]}">{k:<8}</text>'
+            f'<text x="98" y="{y}" font-family="{MONO_FONT}" font-size="11.3" fill="{t["muted"]}">=</text>'
+            f'<text x="112" y="{y}" font-family="{MONO_FONT}" font-size="11.3" fill="{t["text"]}">{v}</text>'
         )
 
     return "\n".join(
         [
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 156" width="900" height="156" role="img" aria-label="GitHub and Research Telemetry">',
-            f'  <rect width="900" height="156" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
-            f'  <rect x="14" y="14" width="414" height="128" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>',
-            f'  <rect x="444" y="14" width="442" height="128" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>',
-            f'  <text x="34" y="37" font-family="{MONO_FONT}" font-size="11" font-weight="700" letter-spacing="0.8" fill="{t["muted"]}">LIVE GITHUB &amp; RESEARCH TELEMETRY</text>',
-            *stat_cells,
-            f'  <text x="466" y="37" font-family="{MONO_FONT}" font-size="11" font-weight="700" letter-spacing="0.8" fill="{t["muted"]}">OWNED REPOSITORY LANGUAGE DISTRIBUTION</text>',
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 218" width="900" height="218" role="img" aria-label="AI Lab Terminal Console and 22-Signal Behavioral Drift Oscilloscope">',
+            "  <defs>",
+            '    <clipPath id="oscClip"><rect x="558" y="64" width="314" height="90" rx="6"/></clipPath>',
+            "  </defs>",
+            f'  <rect width="900" height="218" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
+            "",
+            "  <!-- Left Terminal Panel -->",
+            f'  <rect x="14" y="14" width="514" height="190" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>',
+            f'  <path d="M 14 23 A 9 9 0 0 1 23 14 L 519 14 A 9 9 0 0 1 528 23 L 528 44 L 14 44 Z" fill="{t["surface_alt"]}"/>',
+            f'  <line x1="14" y1="44" x2="528" y2="44" stroke="{t["border"]}" stroke-width="1"/>',
+            f'  <circle cx="34" cy="29" r="4.5" fill="{t["dim"]}"/>',
+            f'  <circle cx="50" cy="29" r="4.5" fill="{t["brass"]}"/>',
+            f'  <circle cx="66" cy="29" r="4.5" fill="{t["sage"]}"/>',
+            f'  <text x="275" y="33" text-anchor="middle" font-family="{MONO_FONT}" font-size="11" font-weight="600" fill="{t["muted"]}">lab.toml  —  rishav@ai-lab</text>',
+            *toml_els,
+            f'  <rect x="34" y="186" width="8" height="12" rx="1.5" fill="{t["accent"]}">',
+            '    <animate attributeName="opacity" values="1;1;0;0;1" dur="1.1s" repeatCount="indefinite"/>',
+            "  </rect>",
+            f'  <text x="48" y="196" font-family="{MONO_FONT}" font-size="10.5" fill="{t["muted"]}">status: experimenting · measuring · open-sourcing</text>',
+            "",
+            "  <!-- Right Animated 22-Signal Drift Oscilloscope -->",
+            f'  <rect x="544" y="14" width="342" height="190" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="1"/>',
+            f'  <text x="562" y="36" font-family="{MONO_FONT}" font-size="10.8" font-weight="700" letter-spacing="0.7" fill="{t["muted"]}">DRIFT OSCILLOSCOPE</text>',
+            f'  <circle cx="858" cy="32" r="4" fill="{t["sage"]}">',
+            '    <animate attributeName="opacity" values="1;0.3;1" dur="1.8s" repeatCount="indefinite"/>',
+            "  </circle>",
+            f'  <text x="846" y="36" text-anchor="end" font-family="{MONO_FONT}" font-size="10" fill="{t["sage"]}">LIVE</text>',
+            f'  <rect x="558" y="64" width="314" height="90" rx="6" fill="{t["surface_alt"]}" stroke="{t["border"]}" stroke-width="0.8"/>',
+            f'  <line x1="558" y1="109" x2="872" y2="109" stroke="{t["border"]}" stroke-dasharray="3 4" stroke-width="0.9"/>',
+            f'  <line x1="558" y1="86" x2="872" y2="86" stroke="{t["border"]}" stroke-dasharray="2 5" stroke-width="0.7"/>',
+            f'  <line x1="558" y1="132" x2="872" y2="132" stroke="{t["border"]}" stroke-dasharray="2 5" stroke-width="0.7"/>',
+            '  <g clip-path="url(#oscClip)">',
+            '    <g transform="translate(558, 0)">',
+            f'      <path d="{osc_wave1}" fill="none" stroke="{t["accent"]}" stroke-width="1.8">',
+            '        <animateTransform attributeName="transform" type="translate" from="0 0" to="-320 0" dur="5.2s" repeatCount="indefinite"/>',
+            "      </path>",
+            f'      <path d="{osc_wave2}" fill="none" stroke="{t["sage"]}" stroke-width="1.5" stroke-opacity="0.85">',
+            '        <animateTransform attributeName="transform" type="translate" from="-320 0" to="0 0" dur="7.6s" repeatCount="indefinite"/>',
+            "      </path>",
+            "    </g>",
+            f'    <line x1="558" y1="64" x2="558" y2="154" stroke="{t["brass"]}" stroke-width="1.4" stroke-opacity="0.65">',
+            '      <animateTransform attributeName="transform" type="translate" from="0 0" to="314 0" dur="4.8s" repeatCount="indefinite"/>',
+            "    </line>",
+            "  </g>",
+            *bars,
+            f'  <text x="715" y="198" text-anchor="middle" font-family="{MONO_FONT}" font-size="9.6" letter-spacing="0.7" fill="{t["muted"]}">22 SIGNALS  ·  5 DIMENSIONS  ·  CALCIFICATION MONITOR</text>',
+            "</svg>\n",
+        ]
+    )
+
+
+def build_pulse_svg(
+    mode: str,
+    gh: dict[str, Any],
+    contribs: dict[str, Any] | None,
+    credly_count: int,
+) -> str:
+    t = THEMES[mode]
+    heat_palette = t["heat"]
+    lang_colors = [t["lang_1"], t["lang_2"], t["lang_3"], t["lang_4"]]
+    langs = gh.get("languages") or [("Python", 100.0, 1)]
+
+    total_contribs = contribs["total_str"] if contribs else "345"
+    summary = (
+        f"{total_contribs} Annual Contributions  ·  "
+        f"{gh['public_repos']} Repos  ·  "
+        f"{gh['total_stars']} Stars  ·  "
+        f"3 Zenodo DOIs  ·  "
+        f"{credly_count} Credly Badges"
+    )
+
+    # Heatmap geometry: 53 weeks centered inside 868px card
+    cells_svg: list[str] = []
+    if contribs and contribs["cells"]:
+        num_weeks = max(1, min(54, contribs["num_weeks"]))
+        pitch = 15
+        grid_w = num_weeks * pitch
+        start_x = (900 - grid_w) / 2.0
+        start_y = 54
+        for col, row, lvl in contribs["cells"]:
+            cx = start_x + col * pitch
+            cy = start_y + row * pitch
+            fill = heat_palette[min(4, max(0, lvl))]
+            cells_svg.append(
+                f'  <rect x="{cx:.1f}" y="{cy}" width="11" height="11" rx="2.5" fill="{fill}"/>'
+            )
+    else:
+        cells_svg.append(
+            f'  <text x="450" y="106" text-anchor="middle" font-family="{MONO_FONT}" font-size="12" fill="{t["muted"]}">GitHub Contribution Heatmap Synced via Actions</text>'
+        )
+
+    # Animated Language Bar
+    bar_x = 28
+    bar_y = 178
+    bar_w = 844
+    bar_h = 10
+    curr_x = float(bar_x)
+    bar_rects: list[str] = []
+    legend_els: list[str] = []
+    for idx, (lname, pct, cnt) in enumerate(langs[:4]):
+        color = lang_colors[idx % len(lang_colors)]
+        seg_w = max(8.0, (pct / 100.0) * bar_w)
+        if idx == len(langs[:4]) - 1:
+            seg_w = max(8.0, (bar_x + bar_w) - curr_x)
+        bar_rects.append(
+            f'  <rect x="{curr_x:.1f}" y="{bar_y}" width="{seg_w:.1f}" height="{bar_h}" fill="{color}" rx="2">'
+            f'<animate attributeName="width" from="0" to="{seg_w:.1f}" dur="1.3s" fill="freeze"/>'
+            f"</rect>"
+        )
+        curr_x += seg_w
+        lx = 28 + idx * 214
+        legend_els.append(
+            f'  <circle cx="{lx + 5}" cy="204" r="4" fill="{color}"/>'
+            f'<text x="{lx + 15}" y="208" font-family="{SANS_FONT}" font-size="11" font-weight="600" fill="{t["text"]}">{esc(lname)} '
+            f'<tspan font-family="{MONO_FONT}" font-weight="400" fill="{t["muted"]}">{pct:.1f}% ({cnt})</tspan></text>'
+        )
+
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 226" width="900" height="226" role="img" aria-label="Live GitHub Contribution Pulse and Language Distribution">',
+            "  <defs>",
+            '    <clipPath id="heatClip"><rect x="28" y="50" width="844" height="114" rx="6"/></clipPath>',
+            '    <linearGradient id="scanGrad" x1="0" y1="0" x2="1" y2="0">',
+            f'      <stop offset="0%" stop-color="{t["accent"]}" stop-opacity="0"/>',
+            f'      <stop offset="50%" stop-color="{t["accent"]}" stop-opacity="0.16"/>',
+            f'      <stop offset="100%" stop-color="{t["accent"]}" stop-opacity="0"/>',
+            "    </linearGradient>",
+            "  </defs>",
+            f'  <rect width="900" height="226" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1.1"/>',
+            f'  <rect x="14" y="14" width="872" height="198" rx="9" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="0.9"/>',
+            f'  <circle cx="32" cy="34" r="3.5" fill="{t["sage"]}">',
+            '    <animate attributeName="opacity" values="1;0.35;1" dur="2.2s" repeatCount="indefinite"/>',
+            "  </circle>",
+            f'  <text x="44" y="38" font-family="{MONO_FONT}" font-size="11" font-weight="700" letter-spacing="0.8" fill="{t["text"]}">LIVE GITHUB PULSE</text>',
+            f'  <text x="872" y="38" text-anchor="end" font-family="{MONO_FONT}" font-size="10.8" fill="{t["muted"]}">{esc(summary)}</text>',
+            *cells_svg,
+            '  <g clip-path="url(#heatClip)">',
+            '    <rect x="-120" y="50" width="120" height="114" fill="url(#scanGrad)">',
+            '      <animateTransform attributeName="transform" type="translate" from="0 0" to="1040 0" dur="7s" repeatCount="indefinite"/>',
+            "    </rect>",
+            "  </g>",
             f'  <rect x="{bar_x}" y="{bar_y}" width="{bar_w}" height="{bar_h}" rx="3" fill="{t["surface_alt"]}"/>',
             *bar_rects,
-            *legend_items,
+            *legend_els,
+            "</svg>\n",
+        ]
+    )
+
+
+def build_footer_svg(mode: str) -> str:
+    t = THEMES[mode]
+    wave1 = _sine_wave_path(1800, 56, 12, 2, 0.2, 110)
+    wave2 = _sine_wave_path(1800, 68, 9, 3, 2.0, 110)
+    dots = []
+    for idx, x in enumerate([95, 210, 330, 570, 690, 805]):
+        dur = 3.2 + (idx % 3) * 0.8
+        beg = f"{idx * 0.45:.2f}s"
+        col = t["accent"] if idx % 2 == 0 else t["sage"]
+        dots.append(
+            f'  <circle cx="{x}" cy="86" r="2.6" fill="{col}">'
+            f'<animate attributeName="cy" values="88;24" dur="{dur:.1f}s" begin="{beg}" repeatCount="indefinite"/>'
+            f'<animate attributeName="opacity" values="0;0.85;0" dur="{dur:.1f}s" begin="{beg}" repeatCount="indefinite"/>'
+            f"</circle>"
+        )
+
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 110" width="900" height="110" role="img" aria-label="Build Measure Self-Correct">',
+            "  <defs>",
+            '    <clipPath id="footClip"><rect x="14" y="10" width="872" height="90" rx="10"/></clipPath>',
+            "  </defs>",
+            f'  <rect width="900" height="110" rx="12" fill="{t["bg"]}" stroke="{t["border"]}" stroke-width="1"/>',
+            f'  <rect x="14" y="10" width="872" height="90" rx="10" fill="{t["surface"]}" stroke="{t["border"]}" stroke-width="0.9"/>',
+            '  <g clip-path="url(#footClip)">',
+            "    <g>",
+            f'      <path d="{wave1}" fill="{t["accent"]}" fill-opacity="0.14"/>',
+            '      <animateTransform attributeName="transform" type="translate" from="0 0" to="-900 0" dur="15s" repeatCount="indefinite"/>',
+            "    </g>",
+            "    <g>",
+            f'      <path d="{wave2}" fill="{t["sage"]}" fill-opacity="0.16"/>',
+            '      <animateTransform attributeName="transform" type="translate" from="-900 0" to="0 0" dur="22s" repeatCount="indefinite"/>',
+            "    </g>",
+            *dots,
+            "  </g>",
+            f'  <text x="450" y="54" text-anchor="middle" font-family="{MONO_FONT}" font-size="13.5" font-weight="700" letter-spacing="3.2" fill="{t["text"]}">BUILD  ·  MEASURE  ·  SELF-CORRECT</text>',
+            f'  <text x="450" y="74" text-anchor="middle" font-family="{SANS_FONT}" font-size="10.8" fill="{t["muted"]}">Rishav1996  ·  Open-Source AI Systems &amp; Behavioral Research Lab</text>',
             "</svg>\n",
         ]
     )
@@ -494,9 +788,9 @@ def render_credly_block(badges: list[dict[str, str]]) -> str:
         )
     row = "&nbsp;\n".join(links)
     return (
-        "<div align=\"center\">\n\n"
+        '<div align="center">\n\n'
         f"{row}\n\n"
-        f"<sub><b>{len(badges)} Live Credly Digital Badges</b> · Auto-synced from Credly · Click any badge to verify</sub>\n\n"
+        f"<sub><b>{len(badges)} Live Credly Digital Badges</b> · Auto-synced via GitHub Actions · Click any badge to verify</sub>\n\n"
         "</div>"
     )
 
@@ -517,7 +811,7 @@ def render_writing_blocks(articles: list[dict[str, str]]) -> tuple[str, str]:
 
 def render_youtube_block(videos: list[dict[str, str]]) -> str:
     if not videos:
-        return "_Videos available at [Algorhythm Chronicles on YouTube](https://www.youtube.com/@algorythmchronicles)._"
+        return "_Watch on [Algorhythm Chronicles](https://www.youtube.com/@algorythmchronicles)._"
     cells = []
     for v in videos:
         t_esc = esc(v["title"])
@@ -535,16 +829,34 @@ def render_youtube_block(videos: list[dict[str, str]]) -> str:
     return "<table><tr>\n" + "\n".join(cells) + "\n</tr></table>"
 
 
+def render_snake_block() -> str:
+    if SNAKE_DARK.exists() and SNAKE_LIGHT.exists():
+        return (
+            '<div align="center">\n\n'
+            "<picture>\n"
+            '  <source media="(prefers-color-scheme: dark)" srcset="./assets/github-snake-dark.svg" />\n'
+            '  <source media="(prefers-color-scheme: light)" srcset="./assets/github-snake-light.svg" />\n'
+            '  <img width="100%" src="./assets/github-snake-dark.svg" alt="Contribution Snake Animation" />\n'
+            "</picture>\n\n"
+            "</div>"
+        )
+    return "<!-- Contribution snake renders automatically once Platane/snk runs in GitHub Actions -->"
+
+
 def render_contrib_3d_block() -> str:
     if CONTRIB_3D_DARK.exists() and CONTRIB_3D_LIGHT.exists():
         return (
-            "<div align=\"center\">\n\n"
+            "<details>\n"
+            "<summary><strong>🌌 Explore 3D Isometric Contribution Skyline</strong></summary>\n\n"
+            "<br/>\n\n"
+            '<div align="center">\n'
             "<picture>\n"
             '  <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-view.svg" />\n'
             '  <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-green-animate.svg" />\n'
             '  <img width="100%" src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub Contribution Skyline" />\n'
-            "</picture>\n\n"
-            "</div>"
+            "</picture>\n"
+            "</div>\n\n"
+            "</details>"
         )
     return "<!-- 3D contribution skyline renders automatically once profile-3d-contrib workflow generates SVGs -->"
 
@@ -557,40 +869,42 @@ def main() -> int:
     readme_text = README_PATH.read_text(encoding="utf-8")
 
     gh_stats = fetch_github_stats()
+    contribs = fetch_contributions()
     credly_badges = fetch_credly_badges()
     articles = fetch_standalone_articles()
     videos = fetch_youtube_videos()
 
     credly_count = len(credly_badges) if credly_badges is not None else 9
-    pub_count = 12  # 3 DOI research works (+ companion paper) + standalone articles = 12 entries in v25
 
     for mode in ("dark", "light"):
-        (ASSETS_DIR / f"hero-{mode}.svg").write_text(
-            build_hero_svg(mode, credly_count=credly_count, pub_count=pub_count), encoding="utf-8"
-        )
-        (ASSETS_DIR / f"kpi-{mode}.svg").write_text(build_kpi_svg(mode), encoding="utf-8")
+        (ASSETS_DIR / f"hero-{mode}.svg").write_text(build_hero_svg(mode), encoding="utf-8")
+        (ASSETS_DIR / f"lab-console-{mode}.svg").write_text(build_lab_console_svg(mode), encoding="utf-8")
+        (ASSETS_DIR / f"footer-{mode}.svg").write_text(build_footer_svg(mode), encoding="utf-8")
         if gh_stats is not None:
-            (ASSETS_DIR / f"telemetry-{mode}.svg").write_text(
-                build_telemetry_svg(mode, gh_stats, credly_count=credly_count), encoding="utf-8"
+            (ASSETS_DIR / f"pulse-{mode}.svg").write_text(
+                build_pulse_svg(mode, gh_stats, contribs, credly_count=credly_count),
+                encoding="utf-8",
             )
 
-    if credly_badges is not None and credly_badges:
+    if credly_badges:
         readme_text = replace_marker(readme_text, "CREDLY-BADGES", render_credly_block(credly_badges))
 
-    if articles is not None and articles:
+    if articles:
         feed_md, archive_md = render_writing_blocks(articles)
         readme_text = replace_marker(readme_text, "WRITING-FEED", feed_md)
         readme_text = replace_marker(readme_text, "WRITING-ARCHIVE", archive_md)
 
-    if videos is not None and videos:
+    if videos:
         readme_text = replace_marker(readme_text, "YOUTUBE-FEED", render_youtube_block(videos))
 
+    readme_text = replace_marker(readme_text, "SNAKE-ANIM", render_snake_block())
     readme_text = replace_marker(readme_text, "CONTRIB-3D", render_contrib_3d_block())
 
     README_PATH.write_text(readme_text, encoding="utf-8")
     print(
-        f"[ok] Synced profile assets & README "
-        f"(gh={bool(gh_stats)}, credly={credly_count}, articles={len(articles or [])}, videos={len(videos or [])})"
+        f"[ok] Synced kinetic lab SVGs & README "
+        f"(gh={bool(gh_stats)}, contrib_days={len(contribs['cells']) if contribs else 0}, "
+        f"credly={credly_count}, articles={len(articles or [])}, videos={len(videos or [])})"
     )
     return 0
 

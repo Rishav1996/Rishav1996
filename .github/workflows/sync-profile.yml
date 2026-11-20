@@ -1,4 +1,4 @@
-name: Sync Executive Studio Profile
+name: Sync Kinetic GitHub Lab Profile
 
 on:
   schedule:
@@ -15,6 +15,15 @@ jobs:
       - name: Checkout profile repository
         uses: actions/checkout@v4
 
+      - name: Generate Contribution Snake Animations
+        uses: Platane/snk@v3
+        continue-on-error: true
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            assets/github-snake-light.svg
+            assets/github-snake-dark.svg?palette=github-dark
+
       - name: Generate 3D Contribution Skyline
         uses: yoshi389111/github-profile-3d-contrib@latest
         continue-on-error: true
@@ -27,7 +36,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Sync Credly, Medium RSS, YouTube & Executive Studio SVGs
+      - name: Sync Animated SVGs, Heatmap, Credly, Medium & YouTube
         run: python .github/scripts/sync_profile.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,5 +44,5 @@ jobs:
       - name: Commit updated assets and README
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: auto-sync profile telemetry, SVGs & feeds [skip ci]"
+          commit_message: "chore: auto-sync kinetic profile SVGs, snake, 3D skyline & feeds [skip ci]"
           file_pattern: "README.md assets/*.svg profile-3d-contrib/*.svg"
