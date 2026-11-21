@@ -132,11 +132,32 @@ Supervisor + ML Sub-Agents (`Classification`, `Regression`, `Clustering`, `TimeS
 </div>
 
 <!-- SNAKE-ANIM:START -->
-<!-- Contribution snake renders automatically once Platane/snk runs in GitHub Actions -->
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/github-snake-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/github-snake-light.svg" />
+  <img width="100%" src="./assets/github-snake-dark.svg" alt="Contribution Snake Animation" />
+</picture>
+
+</div>
 <!-- SNAKE-ANIM:END -->
 
 <!-- CONTRIB-3D:START -->
-<!-- 3D contribution skyline renders automatically once profile-3d-contrib workflow generates SVGs -->
+<details>
+<summary><strong>🌌 Explore 3D Isometric Contribution Skyline</strong></summary>
+
+<br/>
+
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-view.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-green-animate.svg" />
+  <img width="100%" src="./profile-3d-contrib/profile-night-view.svg" alt="3D GitHub Contribution Skyline" />
+</picture>
+</div>
+
+</details>
 <!-- CONTRIB-3D:END -->
 
 ---
